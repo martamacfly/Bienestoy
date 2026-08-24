@@ -1,0 +1,14 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { registerSW } from "virtual:pwa-register";
+import "@fontsource-variable/plus-jakarta-sans";
+import { App } from "./App";
+import "./estilos.css";
+
+registerSW({ immediate: true });
+
+createRoot(document.getElementById("raiz")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

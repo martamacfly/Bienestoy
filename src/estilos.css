@@ -1,0 +1,304 @@
+:root {
+  --papel: #f7efe4;
+  --papel-2: #f0e0cc;
+  --tinta: #2a1c14;
+  --tinta-suave: #7a6458;
+  --naranja: #d35a1c;
+  --naranja-clara: #e07a3d;
+  --terracota: #9c2f2a;
+  --ok: #c44b12;
+  --sombra: 0 10px 30px rgba(42, 28, 20, 0.08);
+  --radio: 18px;
+  font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
+  color: var(--tinta);
+  background: var(--papel);
+  line-height: 1.4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#raiz {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #ffd9b8 0%, transparent 50%),
+    var(--papel);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+h1,
+h2,
+h3 {
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.4rem;
+}
+
+.app {
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 6.2rem;
+}
+
+.marca {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.1rem;
+}
+
+.marca p {
+  margin: 0;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+}
+
+.tarjeta {
+  background: #fffdf8;
+  border: 1px solid #ddd4c4;
+  border-radius: var(--radio);
+  padding: 1rem;
+  box-shadow: var(--sombra);
+  margin-bottom: 0.9rem;
+}
+
+.fila {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.boton {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: var(--naranja);
+  color: #f7f3ea;
+  cursor: pointer;
+}
+
+.boton.secundario {
+  background: var(--papel-2);
+  color: var(--tinta);
+}
+
+.boton.peligro {
+  background: var(--terracota);
+}
+
+.boton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.boton.ancho {
+  width: 100%;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lista li,
+.dia-semana {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee4d4;
+  flex-wrap: wrap;
+}
+
+.dia-semana .campo {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
+.lista li:last-child,
+.dia-semana:last-child {
+  border-bottom: 0;
+}
+
+.guion label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.35rem 0;
+}
+
+.dibujo {
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--naranja);
+  display: block;
+}
+
+.dibujo-boton {
+  border: 1px solid #e2d0be;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.2rem;
+  cursor: pointer;
+}
+
+.linea-ejercicio {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0.45rem 0;
+}
+
+.linea-ejercicio input {
+  flex: 1;
+  border: 1px solid #d3c8b4;
+  border-radius: 12px;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+  font: inherit;
+}
+
+.selector-dibujo {
+  position: relative;
+}
+
+.dibujo-grid {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 2.6rem;
+  display: grid;
+  grid-template-columns: repeat(6, 2.2rem);
+  gap: 0.3rem;
+  max-height: 14rem;
+  overflow: auto;
+  background: #fffdf8;
+  border: 1px solid #ddd4c4;
+  border-radius: 14px;
+  padding: 0.45rem;
+  box-shadow: var(--sombra);
+}
+
+.dibujo-grid button {
+  border: 2px solid transparent;
+  background: var(--papel-2);
+  border-radius: 10px;
+  padding: 0.1rem;
+  cursor: pointer;
+}
+
+.dibujo-grid button.elegida {
+  border-color: var(--naranja);
+}
+
+.nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(440px, 100%);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: #fffdf8;
+  border-top: 1px solid #ddd4c4;
+  padding: 0.45rem 0.3rem calc(0.45rem + env(safe-area-inset-bottom));
+}
+
+.nav button {
+  background: none;
+  border: 0;
+  color: var(--tinta-suave);
+  padding: 0.35rem 0.15rem;
+  font-size: 0.58rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+}
+
+.nav button .dibujo {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.nav button.activa {
+  color: var(--naranja);
+  font-weight: 700;
+}
+
+.titulo-pantalla {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.titulo-pantalla .dibujo {
+  width: 2.15rem;
+  height: 2.15rem;
+  color: var(--naranja);
+}
+
+.cumplimiento {
+  font-variant-numeric: tabular-nums;
+  color: var(--naranja);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.6rem 0;
+}
+
+.campo input,
+.campo select {
+  border: 1px solid #d3c8b4;
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+}
+
+.muted {
+  color: var(--tinta-suave);
+}
+
+.estado-si {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.estado-no {
+  color: var(--terracota);
+  font-weight: 700;
+}
+
+.vacio {
+  color: var(--tinta-suave);
+  margin: 0;
+}
+
+.grafica {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 0.4rem;
+}
