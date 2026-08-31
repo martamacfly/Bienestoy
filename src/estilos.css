@@ -289,12 +289,15 @@ h3 {
   background: none;
   border: 0;
   color: var(--tinta-suave);
-  padding: 0.35rem 0.15rem;
+  margin: 0 0.08rem;
+  padding: 0.4rem 0.12rem;
   font-size: 0.58rem;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.12rem;
+  cursor: pointer;
 }
 
 .nav button .dibujo {
@@ -305,6 +308,8 @@ h3 {
 .nav button.activa {
   color: var(--naranja);
   font-weight: 700;
+  background: color-mix(in srgb, var(--naranja) 16%, #fffdf8);
+  box-shadow: 0 3px 10px rgba(211, 90, 28, 0.28);
 }
 
 .titulo-pantalla {
@@ -367,4 +372,10 @@ h3 {
 
 .grafica + .lista {
   margin-top: 0.5rem;
+}
+
+.version {
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+  text-align: center;
 }
