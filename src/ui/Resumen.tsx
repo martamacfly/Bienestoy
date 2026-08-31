@@ -10,7 +10,7 @@ import {
   type Estado,
   type IsoDate,
 } from "../bienestoy";
-import { Barras, Linea } from "./graficas";
+import { Barras, BarrasActividades, Linea } from "./graficas";
 import { TituloPantalla } from "./IconoPantalla";
 
 function corta(fecha: IsoDate): string {
@@ -27,6 +27,9 @@ export function Resumen({ estado, hoy }: { estado: Estado; hoy: IsoDate }) {
   const pesajes = seriePesajes(estado);
   const hayPlan = semanas.some((s) => s.planificadas > 0);
   const hayMarcas = actividades.length > 0;
+  const hayGraficaActividades = actividades.some(
+    (a) => a.hechas + a.extras > 0,
+  );
 
   return (
     <main>
@@ -72,19 +75,32 @@ export function Resumen({ estado, hoy }: { estado: Estado; hoy: IsoDate }) {
       <section className="tarjeta">
         <h2>Actividades</h2>
         {hayMarcas ? (
-          <ul className="lista">
-            {actividades.map((a) => (
-              <li key={a.nombre}>
-                <span>{a.nombre}</span>
-                <span className="muted">
-                  {a.hechas} hechas
-                  {a.saltadas ? ` · ${a.saltadas} saltadas` : ""}
-                  {a.pendientes ? ` · ${a.pendientes} pendientes` : ""}
-                  {a.extras ? ` · ${a.extras} extras` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <>
+            {hayGraficaActividades && (
+              <>
+                <p className="muted">Sesiones hechas y extras</p>
+                <BarrasActividades
+                  valores={actividades.map((a) => ({
+                    etiqueta: a.nombre,
+                    valor: a.hechas + a.extras,
+                  }))}
+                />
+              </>
+            )}
+            <ul className="lista">
+              {actividades.map((a) => (
+                <li key={a.nombre}>
+                  <span>{a.nombre}</span>
+                  <span className="muted">
+                    {a.hechas} hechas
+                    {a.saltadas ? ` · ${a.saltadas} saltadas` : ""}
+                    {a.pendientes ? ` · ${a.pendientes} pendientes` : ""}
+                    {a.extras ? ` · ${a.extras} extras` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
         ) : (
           <p className="vacio">Aún no hay sesiones ni extras.</p>
         )}

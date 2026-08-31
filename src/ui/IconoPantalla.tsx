@@ -78,6 +78,19 @@ export function IconoPantalla({ ruta }: { ruta: Ruta }) {
   }
 }
 
+export function IconoHecho() {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      className="icono-hecho"
+      aria-hidden
+    >
+      <circle cx="24" cy="24" r="14" {...trazo} />
+      <path d="M16 24 l5 6 12 -14" {...trazo} />
+    </svg>
+  );
+}
+
 export function TituloPantalla({
   ruta,
   children,

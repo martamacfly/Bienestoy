@@ -454,6 +454,10 @@ describe("dibujos", () => {
     expect(inferirDibujo("plancha")).toBe("plank");
     expect(inferirDibujo("flexiones")).toBe("flexion");
     expect(inferirDibujo("zumba")).toBe("baile");
+    expect(inferirDibujo("peso muerto")).toBe("muerto");
+    expect(inferirDibujo("fondos")).toBe("fondos");
+    expect(inferirDibujo("pilates")).toBe("pilates");
+    expect(inferirDibujo("jumping jack")).toBe("jumpingjack");
   });
 
   it("normaliza un guion antiguo de solo texto", () => {

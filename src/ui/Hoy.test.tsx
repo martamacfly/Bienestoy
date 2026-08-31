@@ -8,6 +8,7 @@ import { useState } from "react";
 import {
   aplicar,
   estadoSemilla,
+  ID_CAMINAR,
   ID_GYM,
   type Accion,
   type Estado,
@@ -56,10 +57,31 @@ describe("Hoy", () => {
         el.closest("label")?.textContent?.includes("Planificar"),
       ),
     ).toBeUndefined();
-    expect(nodo.textContent).not.toContain("Extras");
+    expect(nodo.textContent).not.toContain("Añadir actividad");
   });
 
-  it("con sesión permite marcarla hecha y tachar el guion", async () => {
+  it("tras marcar sí deja apuntar qué actividad se hizo", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    const si = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "Sí",
+    );
+    await act(async () => {
+      si!.click();
+    });
+    const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
+    );
+    expect(selector).toBeTruthy();
+    await act(async () => {
+      selector!.value = ID_CAMINAR;
+      selector!.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
+  });
+
+  it("con sesión permite marcarla hecha y muestra el guion", async () => {
     const inicial = aplicar(
       estadoSemilla(),
       { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
@@ -70,20 +92,48 @@ describe("Hoy", () => {
     });
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
-    expect(nodo.querySelector("input[type='checkbox']")).toBeTruthy();
+    expect(nodo.querySelectorAll("input[type='checkbox']")).toHaveLength(1);
     expect(
       Array.from(nodo.querySelectorAll("select")).find((el) =>
         el.closest("label")?.textContent?.includes("Cambiar"),
       ),
     ).toBeUndefined();
+    expect(
+      Array.from(nodo.querySelectorAll("button")).find(
+        (b) => b.textContent === "Hecha" || b.textContent === "Saltada",
+      ),
+    ).toBeUndefined();
 
-    const hecha = Array.from(nodo.querySelectorAll("button")).find(
-      (b) => b.textContent === "Hecha",
+    const hecha = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Hecha']",
     );
     await act(async () => {
       hecha!.click();
     });
-    expect(nodo.textContent).toContain("Sesión hecha");
+    expect(
+      nodo.querySelector<HTMLInputElement>("input[aria-label='Hecha']")?.checked,
+    ).toBe(true);
+    expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
+  });
+
+  it("con sesión permite apuntar otro deporte además", async () => {
+    const inicial = aplicar(
+      estadoSemilla(),
+      { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(<Arnes inicial={inicial} />);
+    });
+    expect(nodo.textContent).toContain("Además");
+    const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
+    );
+    await act(async () => {
+      selector!.value = ID_CAMINAR;
+      selector!.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
   });
 
   it("permite marcar una sesión de un día pasado", async () => {
@@ -97,12 +147,15 @@ describe("Hoy", () => {
       raiz.render(<Arnes fecha={pasado} inicial={inicial} />);
     });
     expect(nodo.textContent).toContain("jueves 20/8/2026");
-    const hecha = Array.from(nodo.querySelectorAll("button")).find(
-      (b) => b.textContent === "Hecha",
+    const hecha = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Hecha']",
     );
     await act(async () => {
       hecha!.click();
     });
-    expect(nodo.textContent).toContain("Sesión hecha");
+    expect(
+      nodo.querySelector<HTMLInputElement>("input[aria-label='Hecha']")?.checked,
+    ).toBe(true);
+    expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
   });
 });

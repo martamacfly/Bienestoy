@@ -5,9 +5,9 @@ export type { Ruta };
 const ITEMS: { ruta: Ruta; etiqueta: string }[] = [
   { ruta: "hoy", etiqueta: "Hoy" },
   { ruta: "semana", etiqueta: "Semana" },
+  { ruta: "catalogo", etiqueta: "Catálogo" },
   { ruta: "resumen", etiqueta: "Resumen" },
   { ruta: "cuerpo", etiqueta: "Cuerpo" },
-  { ruta: "catalogo", etiqueta: "Catálogo" },
   { ruta: "ajustes", etiqueta: "Ajustes" },
 ];
 

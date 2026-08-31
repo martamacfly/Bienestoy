@@ -10,7 +10,7 @@ El compromiso de la usuaria para una semana concreta (lunes a domingo), expresad
 _Avoid_: rutina, programa de entrenamiento, diario, hábito diario, bolsa de la semana, semana domingo–sábado, plantilla de semana, copia automática
 
 **Sesión**:
-La pieza planificada del día: una actividad y, cuando aplica, un guion. Como máximo una por día. Estados: pendiente, hecha, saltada. Empieza pendiente; se puede marcar tarde. Pendiente no cumple (igual que saltada) al calcular hechas / planificadas. No hay duración, RPE ni nota de sesión.
+La pieza planificada del día: una actividad y, cuando aplica, un guion. Como máximo una por día. En Hoy se marca hecha con un check; si no está marcada, no cumple. No hay duración, RPE ni nota de sesión.
 _Avoid_: hábito, entrada, log, entrenamiento, extra
 
 **Extra**:
@@ -18,7 +18,7 @@ Una actividad del catálogo hecha ese día que no es la sesión del plan. Sin gu
 _Avoid_: sesión, segunda sesión, nota de texto
 
 **Guion**:
-Los ejercicios previstos dentro de una sesión. Se planifican y editan en la semana; en Hoy solo se tachan. No deciden si la sesión está cumplida.
+Los ejercicios previstos dentro de una sesión. Se ven en Hoy como lista; se planifican y editan en la semana. No se tachan y no deciden si la sesión está cumplida.
 _Avoid_: plan, checklist de cumplimiento, rutina
 
 **Actividad**:
@@ -34,7 +34,7 @@ Un día del calendario. Puede tener sesiones o estar vacío. El sí/no de deport
 _Avoid_: hábito, racha
 
 **Deporte del día**:
-Si hay sesión: hecha implica sí, saltada implica no. Si el día está vacío, se pregunta sí o no. Un extra en día vacío implica sí. Nunca se marca dos veces.
+Si hay sesión: hecha implica sí; si no está marcada, el deporte del día queda sin marcar. Si el día está vacío, se pregunta sí o no; si es sí, se puede apuntar qué actividad del catálogo se hizo (un extra). Un extra en día vacío implica sí. Nunca se marca dos veces.
 _Avoid_: diario paralelo, hábito diario, segundo canal
 
 **Pesaje**:

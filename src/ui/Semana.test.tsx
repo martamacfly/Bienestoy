@@ -97,6 +97,17 @@ describe("Semana", () => {
     });
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
+    expect(nodo.querySelector(".icono-hecho")).toBeNull();
+
+    const hecha = aplicar(
+      inicial,
+      { tipo: "marcarSesion", fecha: LUNES, estado: "hecha" },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(<Arnes key="hecha" inicial={hecha} />);
+    });
+    expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
     expect(nodo.textContent).not.toContain("Añadir ejercicio");
 
     await pulsar(nodo, "Editar");

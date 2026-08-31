@@ -97,3 +97,58 @@ export function Linea({
     </svg>
   );
 }
+
+export function BarrasActividades({
+  valores,
+}: {
+  valores: { etiqueta: string; valor: number }[];
+}) {
+  const visibles = valores.filter((item) => item.valor > 0);
+  if (visibles.length === 0) return null;
+
+  const max = Math.max(...visibles.map((item) => item.valor));
+  const ancho = 280;
+  const fila = 38;
+  const pad = 2;
+  const altoBarra = 10;
+  const alto = visibles.length * fila;
+  const maxAncho = ancho - pad - 22;
+
+  return (
+    <svg
+      viewBox={`0 0 ${ancho} ${alto}`}
+      role="img"
+      aria-label="Actividades"
+      className="grafica"
+    >
+      {visibles.map((item, i) => {
+        const y = i * fila;
+        const w = Math.max((item.valor / max) * maxAncho, 6);
+        return (
+          <g key={item.etiqueta}>
+            <text x={pad} y={y + 12} fontSize="11" fill="var(--tinta)">
+              {item.etiqueta}
+            </text>
+            <text
+              x={ancho - pad}
+              y={y + 12}
+              textAnchor="end"
+              fontSize="11"
+              fill="var(--tinta-suave)"
+            >
+              {item.valor}
+            </text>
+            <rect
+              x={pad}
+              y={y + 18}
+              width={w}
+              height={altoBarra}
+              rx="4"
+              fill="var(--naranja)"
+            />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}

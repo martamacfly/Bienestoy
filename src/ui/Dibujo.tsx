@@ -241,6 +241,230 @@ export function Dibujo({ id }: { id: DibujoId }) {
           <circle cx="34" cy="12" r="6" {...trazo} />
         </Figura>
       );
+    case "muerto":
+      return (
+        <Figura>
+          <circle cx="24" cy="14" r="3.2" {...trazo} />
+          <path d="M24 18 L20 26 L16 38 M24 18 L30 38 M14 26 H34" {...trazo} />
+          <path d="M10 38 H18 M30 38 H38 M10 34 V40 M18 34 V40 M30 34 V40 M38 34 V40" {...trazo} />
+        </Figura>
+      );
+    case "curl":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3.2" {...trazo} />
+          <path d="M24 14 V28 M16 38 L24 28 L32 38 M24 18 L12 16 M24 18 L36 14" {...trazo} />
+          <circle cx="10" cy="16" r="2.4" {...trazo} />
+          <circle cx="38" cy="14" r="2.4" {...trazo} />
+        </Figura>
+      );
+    case "fondos":
+      return (
+        <Figura>
+          <path d="M8 22 H18 M30 22 H40" {...trazo} />
+          <circle cx="24" cy="16" r="3.2" {...trazo} />
+          <path d="M18 22 L24 20 L30 22 M24 20 V32 M16 40 L24 32 L32 40" {...trazo} />
+        </Figura>
+      );
+    case "jalon":
+      return (
+        <Figura>
+          <path d="M10 8 H38 M24 8 V14" {...trazo} />
+          <circle cx="24" cy="18" r="3.2" {...trazo} />
+          <path d="M14 10 V16 L24 22 L34 16 V10 M24 22 V36" {...trazo} />
+        </Figura>
+      );
+    case "laterales":
+      return (
+        <Figura>
+          <circle cx="24" cy="12" r="3.2" {...trazo} />
+          <path d="M24 16 V28 M16 38 L24 28 L32 38 M8 18 H18 M30 18 H40" {...trazo} />
+          <circle cx="8" cy="18" r="2.2" {...trazo} />
+          <circle cx="40" cy="18" r="2.2" {...trazo} />
+        </Figura>
+      );
+    case "gemelo":
+      return (
+        <Figura>
+          <circle cx="24" cy="8" r="3.2" {...trazo} />
+          <path d="M24 12 V26 M16 20 H32 M20 26 L18 34 M28 26 L30 34" {...trazo} />
+          <path d="M14 38 H22 M26 38 H34" {...trazo} />
+        </Figura>
+      );
+    case "twist":
+      return (
+        <Figura>
+          <circle cx="24" cy="12" r="3.2" {...trazo} />
+          <path d="M24 16 V26 M12 22 L36 18 M16 26 L12 38 M32 26 L36 38" {...trazo} />
+        </Figura>
+      );
+    case "bird":
+      return (
+        <Figura>
+          <circle cx="36" cy="16" r="3" {...trazo} />
+          <path d="M10 30 L20 26 L34 18 M20 26 L16 16 M20 26 L28 36" {...trazo} />
+        </Figura>
+      );
+    case "superhombre":
+      return (
+        <Figura>
+          <circle cx="38" cy="22" r="3" {...trazo} />
+          <path d="M8 30 L18 26 L34 24 L40 22 M18 26 L12 20 M28 25 L34 18" {...trazo} />
+        </Figura>
+      );
+    case "climber":
+      return (
+        <Figura>
+          <circle cx="36" cy="14" r="3" {...trazo} />
+          <path d="M32 16 H16 L10 26 M32 16 L40 26 M16 16 L22 28 M16 16 V28" {...trazo} />
+        </Figura>
+      );
+    case "jumpingjack":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3.2" {...trazo} />
+          <path d="M24 14 V26 M10 16 L24 18 L38 16 M14 40 L24 26 L34 40" {...trazo} />
+        </Figura>
+      );
+    case "step":
+      return (
+        <Figura>
+          <circle cx="22" cy="10" r="3.2" {...trazo} />
+          <path d="M22 14 V24 M16 20 H28 M22 24 L16 36 M22 24 L30 28 L32 20" {...trazo} />
+          <path d="M28 40 H42 V32 H28 Z" {...trazo} />
+        </Figura>
+      );
+    case "wallsit":
+      return (
+        <Figura>
+          <path d="M10 8 V40" {...trazo} />
+          <circle cx="22" cy="14" r="3.2" {...trazo} />
+          <path d="M18 18 V28 H32 M18 18 H12 M18 28 L16 40 M32 28 L36 40" {...trazo} />
+        </Figura>
+      );
+    case "swing":
+      return (
+        <Figura>
+          <circle cx="20" cy="12" r="3.2" {...trazo} />
+          <path d="M20 16 V28 M14 38 L20 28 L26 36 M20 18 L32 28" {...trazo} />
+          <circle cx="34" cy="32" r="5" {...trazo} />
+        </Figura>
+      );
+    case "carry":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3.2" {...trazo} />
+          <path d="M24 14 V26 M24 18 L16 22 M24 18 L32 22 M24 26 L20 38 M24 26 L28 38" {...trazo} />
+          <path d="M12 22 V32 M10 24 H14 M36 22 V32 M34 24 H38" {...trazo} />
+        </Figura>
+      );
+    case "battle":
+      return (
+        <Figura>
+          <circle cx="16" cy="12" r="3.2" {...trazo} />
+          <path d="M16 16 V28 M10 38 L16 28 L22 38 M16 20 H24" {...trazo} />
+          <path d="M24 18 C28 10 32 26 36 16 C40 8 42 24 46 18" {...trazo} />
+        </Figura>
+      );
+    case "trineo":
+      return (
+        <Figura>
+          <circle cx="34" cy="12" r="3.2" {...trazo} />
+          <path d="M34 16 L28 26 L22 24 M34 16 L32 28 L38 38 M28 26 L36 22" {...trazo} />
+          <path d="M8 36 H24 V28 H8 Z" {...trazo} />
+        </Figura>
+      );
+    case "pilates":
+      return (
+        <Figura>
+          <circle cx="24" cy="16" r="3.2" {...trazo} />
+          <path d="M24 20 V28 M14 24 L24 22 L34 24 M16 28 L12 36 M32 28 L36 36" {...trazo} />
+          <path d="M10 40 H38" {...trazo} />
+        </Figura>
+      );
+    case "pino":
+      return (
+        <Figura>
+          <path d="M16 8 H32" {...trazo} />
+          <path d="M20 8 V16 L24 28 L28 16 V8" {...trazo} />
+          <circle cx="24" cy="34" r="3.2" {...trazo} />
+          <path d="M24 30 V28" {...trazo} />
+        </Figura>
+      );
+    case "meditacion":
+      return (
+        <Figura>
+          <circle cx="24" cy="12" r="3.2" {...trazo} />
+          <path d="M24 16 V26 M14 22 L24 20 L34 22 M16 26 C16 34 32 34 32 26" {...trazo} />
+        </Figura>
+      );
+    case "escaleras":
+      return (
+        <Figura>
+          <circle cx="20" cy="10" r="3" {...trazo} />
+          <path d="M20 14 V24 M20 18 L12 22 M20 18 L26 16 M20 24 L16 34 M20 24 L26 28" {...trazo} />
+          <path d="M28 40 H40 V32 H32 V24 H28" {...trazo} />
+        </Figura>
+      );
+    case "paddle":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3" {...trazo} />
+          <path d="M24 14 V24 M16 20 H28 M18 40 C12 32 36 32 30 40 Z" {...trazo} />
+          <path d="M32 8 L28 24 L36 40" {...trazo} />
+        </Figura>
+      );
+    case "esqui":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3.2" {...trazo} />
+          <path d="M24 14 V26 M16 20 H30 M18 26 L12 36 M30 26 L34 36" {...trazo} />
+          <path d="M6 40 L20 34 M28 34 L44 40" {...trazo} />
+        </Figura>
+      );
+    case "karate":
+      return (
+        <Figura>
+          <circle cx="20" cy="12" r="3.2" {...trazo} />
+          <path d="M20 16 V28 M12 22 H26 M20 28 L14 40 M20 28 L36 22" {...trazo} />
+        </Figura>
+      );
+    case "voleibol":
+      return (
+        <Figura>
+          <circle cx="18" cy="14" r="3.2" {...trazo} />
+          <path d="M18 18 V30 M12 24 L18 22 L28 12 M18 30 L14 40 M18 30 L24 38" {...trazo} />
+          <circle cx="34" cy="10" r="4" {...trazo} />
+        </Figura>
+      );
+    case "golf":
+      return (
+        <Figura>
+          <circle cx="20" cy="12" r="3.2" {...trazo} />
+          <path d="M20 16 V28 M14 22 H26 M20 28 L16 40 M20 28 L26 38" {...trazo} />
+          <path d="M28 12 L36 32" {...trazo} />
+          <circle cx="38" cy="36" r="2.4" {...trazo} />
+        </Figura>
+      );
+    case "pingpong":
+      return (
+        <Figura>
+          <circle cx="18" cy="12" r="3.2" {...trazo} />
+          <path d="M18 16 V28 M12 22 H24 M18 28 L14 40 M18 28 L24 38" {...trazo} />
+          <ellipse cx="34" cy="16" rx="5" ry="7" {...trazo} />
+          <circle cx="40" cy="10" r="2" {...trazo} />
+        </Figura>
+      );
+    case "skate":
+      return (
+        <Figura>
+          <circle cx="24" cy="10" r="3.2" {...trazo} />
+          <path d="M24 14 V24 M16 20 H30 M20 24 L18 30 M28 24 L32 30" {...trazo} />
+          <path d="M12 34 H36" {...trazo} />
+          <circle cx="16" cy="38" r="2.4" {...trazo} />
+          <circle cx="32" cy="38" r="2.4" {...trazo} />
+        </Figura>
+      );
     default:
       return (
         <Figura>

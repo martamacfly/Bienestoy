@@ -3,6 +3,7 @@ export type {
   Actividad,
   Contexto,
   DeporteDelDia,
+  Dia,
   Estado,
   IsoDate,
   LineaGuion,

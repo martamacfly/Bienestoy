@@ -1,4 +1,4 @@
-import type { Accion, Estado, IsoDate } from "../bienestoy";
+import type { Accion, Actividad, Dia, Estado, IsoDate } from "../bienestoy";
 import {
   deporteDelDia,
   diaDe,
@@ -6,8 +6,57 @@ import {
   lunesDe,
   nombreDia,
 } from "../bienestoy";
-import { TituloPantalla } from "./IconoPantalla";
+import { IconoHecho, TituloPantalla } from "./IconoPantalla";
 import { Dibujo } from "./Dibujo";
+import { SelectorActividad } from "./SelectorActividad";
+
+function ExtrasDelDia({
+  titulo,
+  pista,
+  dia,
+  fecha,
+  actividades,
+  dispatch,
+}: {
+  titulo: string;
+  pista: string;
+  dia: Dia;
+  fecha: IsoDate;
+  actividades: Actividad[];
+  dispatch: (accion: Accion) => void;
+}) {
+  return (
+    <>
+      <h3>{titulo}</h3>
+      {dia.extras.length === 0 ? (
+        <p className="muted">{pista}</p>
+      ) : (
+        <ul className="lista">
+          {dia.extras.map((extra, indice) => (
+            <li key={`${extra.actividadId}-${indice}`}>
+              <span>{extra.actividadNombre}</span>
+              <button
+                className="boton secundario"
+                onClick={() =>
+                  dispatch({ tipo: "quitarExtra", fecha, indice })
+                }
+              >
+                Quitar
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <SelectorActividad
+        actividades={actividades}
+        etiqueta="Añadir actividad"
+        onElegir={(actividadId) =>
+          dispatch({ tipo: "anadirExtra", fecha, actividadId })
+        }
+      />
+    </>
+  );
+}
 
 export function Hoy({
   estado,
@@ -51,77 +100,41 @@ export function Hoy({
       <section className="tarjeta">
         {sesion ? (
           <>
-            <h2>{sesion.actividadNombre}</h2>
-            <p className="muted">
-              {sesion.estado === "hecha"
-                ? "Sesión hecha"
-                : sesion.estado === "saltada"
-                  ? "Sesión saltada"
-                  : "Pendiente"}
-            </p>
-            <div className="fila">
-              <button
-                className="boton"
-                onClick={() =>
+            <label className="marca-sesion">
+              <input
+                type="checkbox"
+                checked={sesion.estado === "hecha"}
+                aria-label="Hecha"
+                onChange={(e) =>
                   dispatch({
                     tipo: "marcarSesion",
                     fecha,
-                    estado: "hecha",
+                    estado: e.target.checked ? "hecha" : "pendiente",
                   })
                 }
-              >
-                Hecha
-              </button>
-              <button
-                className="boton peligro"
-                onClick={() =>
-                  dispatch({
-                    tipo: "marcarSesion",
-                    fecha,
-                    estado: "saltada",
-                  })
-                }
-              >
-                Saltada
-              </button>
-              {sesion.estado !== "pendiente" && (
-                <button
-                  className="boton secundario"
-                  onClick={() =>
-                    dispatch({
-                      tipo: "marcarSesion",
-                      fecha,
-                      estado: "pendiente",
-                    })
-                  }
-                >
-                  Quitar marca
-                </button>
-              )}
-            </div>
+              />
+              <h2>{sesion.actividadNombre}</h2>
+              {sesion.estado === "hecha" && <IconoHecho />}
+            </label>
             {sesion.guion.length > 0 && (
               <div className="guion">
                 <h3>Guion</h3>
                 {sesion.guion.map((linea, indice) => (
-                  <label key={`${linea.nombre}-${indice}`}>
+                  <div className="linea-guion" key={`${linea.nombre}-${indice}`}>
                     <Dibujo id={linea.dibujo} />
-                    <input
-                      type="checkbox"
-                      checked={linea.tachado}
-                      onChange={(e) =>
-                        dispatch({
-                          tipo: "tacharGuion",
-                          fecha,
-                          indice,
-                          tachado: e.target.checked,
-                        })
-                      }
-                    />
                     {linea.nombre}
-                  </label>
+                  </div>
                 ))}
               </div>
             )}
+            <ExtrasDelDia
+              titulo="Además"
+              pista="Si hiciste otro deporte, apúntalo."
+              dia={dia}
+              fecha={fecha}
+              actividades={estado.actividades}
+              dispatch={dispatch}
+            />
           </>
         ) : (
           <>
@@ -157,24 +170,37 @@ export function Hoy({
                 </button>
               </div>
             )}
-            <p>
-              Deporte del día:{" "}
-              <span
-                className={
-                  deporte === "si"
-                    ? "estado-si"
+            <p className="fila-hecho">
+              <span>
+                Deporte del día:{" "}
+                <span
+                  className={
+                    deporte === "si"
+                      ? "estado-si"
+                      : deporte === "no"
+                        ? "estado-no"
+                        : "muted"
+                  }
+                >
+                  {deporte === "si"
+                    ? "sí"
                     : deporte === "no"
-                      ? "estado-no"
-                      : "muted"
-                }
-              >
-                {deporte === "si"
-                  ? "sí"
-                  : deporte === "no"
-                    ? "no"
-                    : "sin marcar"}
+                      ? "no"
+                      : "sin marcar"}
+                </span>
               </span>
+              {deporte === "si" && <IconoHecho />}
             </p>
+            {deporte === "si" && (
+              <ExtrasDelDia
+                titulo="Qué se hizo"
+                pista="Puedes apuntar la actividad."
+                dia={dia}
+                fecha={fecha}
+                actividades={estado.actividades}
+                dispatch={dispatch}
+              />
+            )}
           </>
         )}
       </section>

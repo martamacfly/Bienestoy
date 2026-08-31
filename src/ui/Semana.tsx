@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Accion, Estado, IsoDate } from "../bienestoy";
 import {
   cumplimientoSemana,
+  deporteDelDia,
   diaDe,
   etiquetaFecha,
   etiquetaSemana,
@@ -9,7 +10,7 @@ import {
   lunesDe,
   sumarDias,
 } from "../bienestoy";
-import { TituloPantalla } from "./IconoPantalla";
+import { IconoHecho, TituloPantalla } from "./IconoPantalla";
 import { EditorGuion } from "./EditorGuion";
 import { SelectorActividad } from "./SelectorActividad";
 
@@ -122,6 +123,10 @@ export function Semana({
                 )}
               </div>
               <div className="fila" style={{ justifyContent: "flex-end" }}>
+                {(sesion?.estado === "hecha" ||
+                  (!sesion && deporteDelDia(estado, fecha) === "si")) && (
+                  <IconoHecho />
+                )}
                 {!editando && (
                   <button
                     className="boton secundario"
