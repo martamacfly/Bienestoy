@@ -61,7 +61,7 @@ export type Accion =
   | { tipo: "quitarSesion"; fecha: IsoDate }
   | { tipo: "marcarSesion"; fecha: IsoDate; estado: EstadoSesion }
   | { tipo: "tacharGuion"; fecha: IsoDate; indice: number; tachado: boolean }
-  | { tipo: "reemplazarGuion"; fecha: IsoDate; lineas: PlantillaEjercicio[] }
+  | { tipo: "reemplazarGuion"; fecha: IsoDate; lineas: LineaGuion[] }
   | { tipo: "anadirExtra"; fecha: IsoDate; actividadId: string }
   | { tipo: "quitarExtra"; fecha: IsoDate; indice: number }
   | { tipo: "responderDeporte"; fecha: IsoDate; si: boolean }

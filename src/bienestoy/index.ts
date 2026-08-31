@@ -12,7 +12,9 @@ export { DIBUJOS, etiquetaDibujo, inferirDibujo } from "./dibujos";
 export type { DibujoId } from "./dibujos";
 export { aplicar } from "./aplicar";
 export {
+  esFechaIso,
   etiquetaFecha,
+  etiquetaSemana,
   fechasDeSemana,
   formatearFecha,
   hoyLocal,
@@ -25,7 +27,6 @@ export {
   deporteDelDia,
   diaDe,
   historialSemanas,
-  puedeReplanificar,
   resumenActividades,
   resumenDeporte,
   serieMedida,

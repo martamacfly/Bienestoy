@@ -10,10 +10,6 @@ export function diaDe(estado: Estado, fecha: IsoDate): Dia {
   return estado.dias[fecha] ?? { extras: [] };
 }
 
-export function puedeReplanificar(fecha: IsoDate, hoy: IsoDate): boolean {
-  return fecha >= hoy;
-}
-
 export function deporteDelDia(estado: Estado, fecha: IsoDate): DeporteDelDia {
   const dia = diaDe(estado, fecha);
   if (dia.sesion) {

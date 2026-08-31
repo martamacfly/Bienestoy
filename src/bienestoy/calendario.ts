@@ -34,11 +34,26 @@ export function fechasDeSemana(lunes: IsoDate): IsoDate[] {
   return [0, 1, 2, 3, 4, 5, 6].map((n) => sumarDias(lunes, n));
 }
 
-export function esAnterior(fecha: IsoDate, hoy: IsoDate): boolean {
-  return fecha < hoy;
-}
-
 const DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+const MESES = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sep",
+  "oct",
+  "nov",
+  "dic",
+];
+
+export function esFechaIso(valor: string): valor is IsoDate {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
+  return formatearFecha(parsearFecha(valor)) === valor;
+}
 
 export function nombreDia(fecha: IsoDate): string {
   const i = parsearFecha(fecha).getDay();
@@ -47,5 +62,24 @@ export function nombreDia(fecha: IsoDate): string {
 
 export function etiquetaFecha(fecha: IsoDate): string {
   const d = parsearFecha(fecha);
-  return `${nombreDia(fecha)} ${d.getDate()}/${d.getMonth() + 1}`;
+  return `${nombreDia(fecha)} ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+}
+
+export function etiquetaSemana(lunes: IsoDate): string {
+  const dias = fechasDeSemana(lunesDe(lunes));
+  const inicio = parsearFecha(dias[0]);
+  const fin = parsearFecha(dias[6]);
+  const diaInicio = inicio.getDate();
+  const diaFin = fin.getDate();
+  const mesInicio = MESES[inicio.getMonth()];
+  const mesFin = MESES[fin.getMonth()];
+  const anioInicio = inicio.getFullYear();
+  const anioFin = fin.getFullYear();
+  if (mesInicio === mesFin && anioInicio === anioFin) {
+    return `${diaInicio}–${diaFin} ${mesFin} ${anioFin}`;
+  }
+  if (anioInicio === anioFin) {
+    return `${diaInicio} ${mesInicio} – ${diaFin} ${mesFin} ${anioFin}`;
+  }
+  return `${diaInicio} ${mesInicio} ${anioInicio} – ${diaFin} ${mesFin} ${anioFin}`;
 }

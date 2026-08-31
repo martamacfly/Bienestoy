@@ -134,6 +134,37 @@ h3 {
   margin-bottom: 0;
 }
 
+.enlace-dia {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.enlace-dia:focus-visible {
+  outline: 2px solid var(--naranja);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.detalle-dia {
+  flex: 1 1 100%;
+  margin-top: 0.25rem;
+}
+
+.detalle-dia summary {
+  cursor: pointer;
+  color: var(--tinta-suave);
+  font-size: 0.92rem;
+}
+
+.editor-guion {
+  margin-top: 0.35rem;
+}
+
 .lista li:last-child,
 .dia-semana:last-child {
   border-bottom: 0;

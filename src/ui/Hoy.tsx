@@ -3,36 +3,49 @@ import {
   deporteDelDia,
   diaDe,
   etiquetaFecha,
-  puedeReplanificar,
+  lunesDe,
+  nombreDia,
 } from "../bienestoy";
 import { TituloPantalla } from "./IconoPantalla";
 import { Dibujo } from "./Dibujo";
-import { SelectorActividad } from "./SelectorActividad";
 
 export function Hoy({
   estado,
+  fecha,
   hoy,
   dispatch,
 }: {
   estado: Estado;
+  fecha: IsoDate;
   hoy: IsoDate;
   dispatch: (accion: Accion) => void;
 }) {
-  const dia = diaDe(estado, hoy);
-  const deporte = deporteDelDia(estado, hoy);
+  const dia = diaDe(estado, fecha);
+  const deporte = deporteDelDia(estado, fecha);
   const sesion = dia.sesion;
-  const sePuedePlanear = puedeReplanificar(hoy, hoy);
+  const esHoy = fecha === hoy;
 
   return (
     <main>
       <header className="marca">
         <div>
-          <TituloPantalla ruta="hoy">Hoy</TituloPantalla>
-          <p>{etiquetaFecha(hoy)}</p>
+          <TituloPantalla ruta="hoy">
+            {esHoy
+              ? "Hoy"
+              : nombreDia(fecha).replace(/^\p{L}/u, (letra) =>
+                  letra.toUpperCase(),
+                )}
+          </TituloPantalla>
+          <p>{etiquetaFecha(fecha)}</p>
         </div>
-        <a href="#/cuerpo" className="muted">
-          Cuerpo
-        </a>
+        <div className="fila" style={{ justifyContent: "flex-end" }}>
+          <a href={`#/semana/${lunesDe(fecha)}`} className="muted">
+            Semana
+          </a>
+          <a href="#/cuerpo" className="muted">
+            Cuerpo
+          </a>
+        </div>
       </header>
 
       <section className="tarjeta">
@@ -52,7 +65,7 @@ export function Hoy({
                 onClick={() =>
                   dispatch({
                     tipo: "marcarSesion",
-                    fecha: hoy,
+                    fecha,
                     estado: "hecha",
                   })
                 }
@@ -64,7 +77,7 @@ export function Hoy({
                 onClick={() =>
                   dispatch({
                     tipo: "marcarSesion",
-                    fecha: hoy,
+                    fecha,
                     estado: "saltada",
                   })
                 }
@@ -77,7 +90,7 @@ export function Hoy({
                   onClick={() =>
                     dispatch({
                       tipo: "marcarSesion",
-                      fecha: hoy,
+                      fecha,
                       estado: "pendiente",
                     })
                   }
@@ -98,7 +111,7 @@ export function Hoy({
                       onChange={(e) =>
                         dispatch({
                           tipo: "tacharGuion",
-                          fecha: hoy,
+                          fecha,
                           indice,
                           tachado: e.target.checked,
                         })
@@ -113,7 +126,9 @@ export function Hoy({
         ) : (
           <>
             <h2>Sin sesión planificada</h2>
-            <p className="muted">Descanso del plan. ¿Hubo deporte igual?</p>
+            <p className="muted">
+              El plan se edita en Semana. ¿Hubo deporte igual?
+            </p>
             {dia.extras.length === 0 && (
               <div className="fila">
                 <button
@@ -121,7 +136,7 @@ export function Hoy({
                   onClick={() =>
                     dispatch({
                       tipo: "responderDeporte",
-                      fecha: hoy,
+                      fecha,
                       si: true,
                     })
                   }
@@ -133,7 +148,7 @@ export function Hoy({
                   onClick={() =>
                     dispatch({
                       tipo: "responderDeporte",
-                      fecha: hoy,
+                      fecha,
                       si: false,
                     })
                   }
@@ -143,7 +158,7 @@ export function Hoy({
               </div>
             )}
             <p>
-              Deporte de hoy:{" "}
+              Deporte del día:{" "}
               <span
                 className={
                   deporte === "si"
@@ -160,51 +175,8 @@ export function Hoy({
                     : "sin marcar"}
               </span>
             </p>
-            {sePuedePlanear && (
-              <SelectorActividad
-                actividades={estado.actividades}
-                etiqueta="Planificar hoy"
-                onElegir={(actividadId) =>
-                  dispatch({
-                    tipo: "colocarSesion",
-                    fecha: hoy,
-                    actividadId,
-                  })
-                }
-              />
-            )}
           </>
         )}
-      </section>
-
-      <section className="tarjeta">
-        <h2>Extras</h2>
-        {dia.extras.length === 0 ? (
-          <p className="vacio">Nada aparte del plan.</p>
-        ) : (
-          <ul className="lista">
-            {dia.extras.map((extra, indice) => (
-              <li key={`${extra.actividadId}-${indice}`}>
-                <span>{extra.actividadNombre}</span>
-                <button
-                  className="boton secundario"
-                  onClick={() =>
-                    dispatch({ tipo: "quitarExtra", fecha: hoy, indice })
-                  }
-                >
-                  Quitar
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <SelectorActividad
-          actividades={estado.actividades}
-          etiqueta="Añadir extra"
-          onElegir={(actividadId) =>
-            dispatch({ tipo: "anadirExtra", fecha: hoy, actividadId })
-          }
-        />
       </section>
     </main>
   );

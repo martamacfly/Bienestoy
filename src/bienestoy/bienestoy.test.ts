@@ -139,19 +139,19 @@ describe("sesión y plan", () => {
     ]);
   });
 
-  it("no reescribe la actividad de un día pasado", () => {
+  it("permite colocar o cambiar la sesión de un día pasado", () => {
     let estado = estadoSemilla();
-    estado = hacer(estado, {
-      tipo: "colocarSesion",
-      fecha: LUNES,
-      actividadId: ID_GYM,
-    });
+    estado = hacer(
+      estado,
+      { tipo: "colocarSesion", fecha: LUNES, actividadId: ID_GYM },
+      JUEVES,
+    );
     estado = hacer(
       estado,
       { tipo: "colocarSesion", fecha: LUNES, actividadId: ID_YOGA },
-      MARTES,
+      JUEVES,
     );
-    expect(diaDe(estado, LUNES).sesion?.actividadId).toBe(ID_GYM);
+    expect(diaDe(estado, LUNES).sesion?.actividadId).toBe(ID_YOGA);
   });
 
   it("sí permite marcar tarde un día pasado", () => {
@@ -187,6 +187,35 @@ describe("sesión y plan", () => {
       hechas: 0,
       planificadas: 1,
     });
+  });
+
+  it("editar el guion conserva lo ya tachado", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "tacharGuion",
+      fecha: MARTES,
+      indice: 0,
+      tachado: true,
+    });
+    const actual = diaDe(estado, MARTES).sesion!.guion;
+    estado = hacer(estado, {
+      tipo: "reemplazarGuion",
+      fecha: MARTES,
+      lineas: actual.map((linea, i) =>
+        i === 0 ? { ...linea, nombre: "Sentadilla goblet" } : linea,
+      ),
+    });
+    const guion = diaDe(estado, MARTES).sesion?.guion;
+    expect(guion?.[0]).toMatchObject({
+      nombre: "Sentadilla goblet",
+      tachado: true,
+    });
+    expect(guion?.[1]?.tachado).toBe(false);
   });
 });
 
@@ -269,7 +298,7 @@ describe("copiar semana anterior", () => {
     expect(diaDe(estado, MARTES).sesion?.estado).toBe("hecha");
   });
 
-  it("no pisa días pasados de la semana destino", () => {
+  it("copia también los días ya pasados de la semana destino", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -282,7 +311,7 @@ describe("copiar semana anterior", () => {
       { tipo: "copiarSemanaAnterior", lunesDestino: lunesSiguiente },
       "2026-09-02",
     );
-    expect(diaDe(estado, lunesSiguiente).sesion).toBeUndefined();
+    expect(diaDe(estado, lunesSiguiente).sesion?.actividadId).toBe(ID_GYM);
   });
 });
 

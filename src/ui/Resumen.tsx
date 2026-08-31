@@ -1,5 +1,6 @@
 import {
   cumplimientoSemana,
+  etiquetaSemana,
   historialSemanas,
   lunesDe,
   resumenActividades,
@@ -38,6 +39,7 @@ export function Resumen({ estado, hoy }: { estado: Estado; hoy: IsoDate }) {
 
       <section className="tarjeta">
         <h2>Esta semana</h2>
+        <p className="muted">{etiquetaSemana(lunes)}</p>
         <p className="cumplimiento" style={{ fontSize: "1.6rem" }}>
           {estaSemana.hechas}/{estaSemana.planificadas || 0}
         </p>

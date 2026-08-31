@@ -1,5 +1,5 @@
 import { fechasDeSemana, lunesDe, sumarDias } from "./calendario";
-import { diaDe, puedeReplanificar } from "./consultas";
+import { diaDe } from "./consultas";
 import { lineaDesdeNombre } from "./lineas";
 import type {
   Accion,
@@ -53,9 +53,7 @@ function colocarSesion(
   estado: Estado,
   fecha: IsoDate,
   actividadId: string,
-  hoy: IsoDate,
 ): Estado {
-  if (!puedeReplanificar(fecha, hoy)) return estado;
   const actividad = actividadPorId(estado, actividadId);
   if (!actividad) return estado;
   const dia = diaDe(estado, fecha);
@@ -68,8 +66,7 @@ function colocarSesion(
   return estado;
 }
 
-function quitarSesion(estado: Estado, fecha: IsoDate, hoy: IsoDate): Estado {
-  if (!puedeReplanificar(fecha, hoy)) return estado;
+function quitarSesion(estado: Estado, fecha: IsoDate): Estado {
   const dia = diaDe(estado, fecha);
   const siguiente: Dia = { ...dia, sesion: undefined };
   escribirDia(estado, fecha, siguiente);
@@ -113,10 +110,8 @@ function tacharGuion(
 function reemplazarGuion(
   estado: Estado,
   fecha: IsoDate,
-  lineas: { nombre: string; dibujo: import("./dibujos").DibujoId }[],
-  hoy: IsoDate,
+  lineas: { nombre: string; dibujo: import("./dibujos").DibujoId; tachado?: boolean }[],
 ): Estado {
-  if (!puedeReplanificar(fecha, hoy)) return estado;
   const dia = diaDe(estado, fecha);
   if (!dia.sesion) return estado;
   escribirDia(estado, fecha, {
@@ -124,7 +119,10 @@ function reemplazarGuion(
     sesion: {
       ...dia.sesion,
       guion: lineas
-        .map((linea) => lineaDesdeNombre(linea.nombre, linea.dibujo))
+        .map((linea) => ({
+          ...lineaDesdeNombre(linea.nombre, linea.dibujo),
+          tachado: linea.tachado === true,
+        }))
         .filter((linea) => linea.nombre),
     },
   });
@@ -171,13 +169,11 @@ function responderDeporte(
 function copiarSemanaAnterior(
   estado: Estado,
   lunesDestino: IsoDate,
-  hoy: IsoDate,
 ): Estado {
   const origenLunes = sumarDias(lunesDe(lunesDestino), -7);
   const origen = fechasDeSemana(origenLunes);
   const destino = fechasDeSemana(lunesDe(lunesDestino));
   destino.forEach((fechaDestino, i) => {
-    if (!puedeReplanificar(fechaDestino, hoy)) return;
     const origenDia = diaDe(estado, origen[i]);
     const destDia = diaDe(estado, fechaDestino);
     const sesion = origenDia.sesion
@@ -203,19 +199,14 @@ function copiarSemanaAnterior(
 export function aplicar(
   estado: Estado,
   accion: Accion,
-  ctx: Contexto,
+  _ctx: Contexto,
 ): Estado {
   const siguiente = clonarEstado(estado);
   switch (accion.tipo) {
     case "colocarSesion":
-      return colocarSesion(
-        siguiente,
-        accion.fecha,
-        accion.actividadId,
-        ctx.hoy,
-      );
+      return colocarSesion(siguiente, accion.fecha, accion.actividadId);
     case "quitarSesion":
-      return quitarSesion(siguiente, accion.fecha, ctx.hoy);
+      return quitarSesion(siguiente, accion.fecha);
     case "marcarSesion":
       return marcarSesion(siguiente, accion.fecha, accion.estado);
     case "tacharGuion":
@@ -226,12 +217,7 @@ export function aplicar(
         accion.tachado,
       );
     case "reemplazarGuion":
-      return reemplazarGuion(
-        siguiente,
-        accion.fecha,
-        accion.lineas,
-        ctx.hoy,
-      );
+      return reemplazarGuion(siguiente, accion.fecha, accion.lineas);
     case "anadirExtra":
       return anadirExtra(siguiente, accion.fecha, accion.actividadId);
     case "quitarExtra":
@@ -298,6 +284,6 @@ export function aplicar(
       siguiente.medidas = siguiente.medidas.filter((m) => m.id !== accion.id);
       return siguiente;
     case "copiarSemanaAnterior":
-      return copiarSemanaAnterior(siguiente, accion.lunesDestino, ctx.hoy);
+      return copiarSemanaAnterior(siguiente, accion.lunesDestino);
   }
 }

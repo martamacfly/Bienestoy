@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   aplicar,
+  esFechaIso,
   hoyLocal,
+  lunesDe,
   type Accion,
   type Estado,
+  type IsoDate,
 } from "./bienestoy";
 import { cargarEstado, guardarEstado } from "./bienestoy/persistencia";
 import { Ajustes } from "./ui/Ajustes";
@@ -14,19 +17,50 @@ import { Nav, type Ruta } from "./ui/Nav";
 import { Resumen } from "./ui/Resumen";
 import { Semana } from "./ui/Semana";
 
-function rutaDesdeHash(): Ruta {
-  const valor = window.location.hash.replace("#/", "") as Ruta;
-  if (["hoy", "semana", "resumen", "cuerpo", "catalogo", "ajustes"].includes(valor)) {
-    return valor;
+type Vista =
+  | { pantalla: "hoy" }
+  | { pantalla: "dia"; fecha: IsoDate }
+  | { pantalla: "semana"; lunes: IsoDate }
+  | { pantalla: "resumen" }
+  | { pantalla: "cuerpo" }
+  | { pantalla: "catalogo" }
+  | { pantalla: "ajustes" };
+
+function vistaDesdeHash(hoy: IsoDate): Vista {
+  const crudo = window.location.hash.replace(/^#\/?/, "");
+  const partes = crudo.split("/").filter(Boolean);
+  const cabeza = partes[0] ?? "hoy";
+  const dato = partes[1];
+
+  if (cabeza === "dia" && dato && esFechaIso(dato)) {
+    return { pantalla: "dia", fecha: dato };
   }
-  return "hoy";
+  if (cabeza === "semana") {
+    return {
+      pantalla: "semana",
+      lunes: dato && esFechaIso(dato) ? lunesDe(dato) : lunesDe(hoy),
+    };
+  }
+  if (cabeza === "resumen") return { pantalla: "resumen" };
+  if (cabeza === "cuerpo") return { pantalla: "cuerpo" };
+  if (cabeza === "catalogo") return { pantalla: "catalogo" };
+  if (cabeza === "ajustes") return { pantalla: "ajustes" };
+  return { pantalla: "hoy" };
+}
+
+function rutaNav(vista: Vista, hoy: IsoDate): Ruta {
+  if (vista.pantalla === "dia") {
+    return vista.fecha === hoy ? "hoy" : "semana";
+  }
+  if (vista.pantalla === "semana") return "semana";
+  return vista.pantalla;
 }
 
 export function App() {
   const [estado, setEstado] = useState<Estado | null>(null);
-  const [ruta, setRuta] = useState<Ruta>(rutaDesdeHash);
-  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const hoy = useMemo(() => hoyLocal(), []);
+  const [vista, setVista] = useState<Vista>(() => vistaDesdeHash(hoy));
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   useEffect(() => {
     cargarEstado()
@@ -35,8 +69,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    setRuta(rutaDesdeHash());
-    const onHash = () => setRuta(rutaDesdeHash());
+    const onHash = () => setVista(vistaDesdeHash(hoyLocal()));
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -50,12 +83,15 @@ export function App() {
     });
   }
 
-  function ir(siguiente: Ruta) {
-    setRuta(siguiente);
-    const hash = `/${siguiente}`;
-    if (window.location.hash !== `#${hash}`) {
+  function irA(hash: string) {
+    if (window.location.hash !== hash) {
       window.location.hash = hash;
     }
+    setVista(vistaDesdeHash(hoyLocal()));
+  }
+
+  function ir(siguiente: Ruta) {
+    irA(`#/${siguiente}`);
   }
 
   if (errorCarga) {
@@ -74,20 +110,36 @@ export function App() {
     );
   }
 
+  const fechaDia =
+    vista.pantalla === "dia"
+      ? vista.fecha
+      : vista.pantalla === "hoy"
+        ? hoy
+        : null;
+
   return (
     <div className="app">
-      {ruta === "hoy" && <Hoy estado={estado} hoy={hoy} dispatch={dispatch} />}
-      {ruta === "semana" && (
-        <Semana estado={estado} hoy={hoy} dispatch={dispatch} />
+      {fechaDia && (
+        <Hoy estado={estado} fecha={fechaDia} hoy={hoy} dispatch={dispatch} />
       )}
-      {ruta === "resumen" && <Resumen estado={estado} hoy={hoy} />}
-      {ruta === "cuerpo" && (
+      {vista.pantalla === "semana" && (
+        <Semana
+          estado={estado}
+          hoy={hoy}
+          lunes={vista.lunes}
+          dispatch={dispatch}
+          onVerDia={(fecha) => irA(`#/dia/${fecha}`)}
+          onVerSemana={(lunes) => irA(`#/semana/${lunes}`)}
+        />
+      )}
+      {vista.pantalla === "resumen" && <Resumen estado={estado} hoy={hoy} />}
+      {vista.pantalla === "cuerpo" && (
         <Cuerpo estado={estado} hoy={hoy} dispatch={dispatch} />
       )}
-      {ruta === "catalogo" && (
+      {vista.pantalla === "catalogo" && (
         <Catalogo estado={estado} dispatch={dispatch} />
       )}
-      {ruta === "ajustes" && (
+      {vista.pantalla === "ajustes" && (
         <Ajustes
           estado={estado}
           onImportar={(siguiente) => {
@@ -96,7 +148,7 @@ export function App() {
           }}
         />
       )}
-      <Nav ruta={ruta} ir={ir} />
+      <Nav ruta={rutaNav(vista, hoy)} ir={ir} />
     </div>
   );
 }

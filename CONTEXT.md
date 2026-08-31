@@ -6,7 +6,7 @@ Contexto de salud personal: hacer visible la intención de la semana y si se cum
 ## Language
 
 **Plan semanal**:
-El compromiso de la usuaria para una semana concreta (lunes a domingo), expresado como un calendario de sesiones. El pasado de esa semana es historia (no se reescribe la actividad); los días futuros aún se pueden replanificar. Marcar hecha/saltada a posteriori sí es registro, no replanificar. El domingo cierra esta semana; la siguiente es otro plan. Una semana nueva puede nacer copiando la anterior (actividad + guion, sin marcas ni extras ni peso) y editándola.
+El compromiso de la usuaria para una semana concreta (lunes a domingo), expresado como un calendario de sesiones. Primero se ve lo planificado (o el vacío); al editar se puede cambiar cualquier día y el guion de cada sesión. Se puede editar cualquier día, también de semanas pasadas: si se olvidó apuntar, se apunta después. El domingo no cierra el registro. Una semana nueva puede nacer copiando la anterior (actividad + guion, sin marcas ni extras ni peso) y editándola.
 _Avoid_: rutina, programa de entrenamiento, diario, hábito diario, bolsa de la semana, semana domingo–sábado, plantilla de semana, copia automática
 
 **Sesión**:
@@ -18,15 +18,15 @@ Una actividad del catálogo hecha ese día que no es la sesión del plan. Sin gu
 _Avoid_: sesión, segunda sesión, nota de texto
 
 **Guion**:
-Los ejercicios previstos dentro de una sesión. Sirven de memoria y se pueden tachar; no deciden si la sesión está cumplida.
+Los ejercicios previstos dentro de una sesión. Se planifican y editan en la semana; en Hoy solo se tachan. No deciden si la sesión está cumplida.
 _Avoid_: plan, checklist de cumplimiento, rutina
 
 **Actividad**:
-Un tipo de práctica del catálogo: running, gym, yoga, caminar. Da nombre a la sesión y al extra. El catálogo viene con semilla y es editable.
+Un tipo de práctica del catálogo: running, gym, yoga, caminar. Da nombre a la sesión y al extra. El catálogo se mira como lista y se cambia al editar.
 _Avoid_: deporte, ejercicio (ese es el movimiento de dentro)
 
 **Ejercicio**:
-Un movimiento concreto que vive dentro de una actividad, no en un pool global. El guion por defecto de la actividad se copia a la sesión y se puede retocar solo ese día.
+Un movimiento concreto que vive dentro de una actividad, no en un pool global. El guion por defecto de la actividad se copia a la sesión y se puede retocar en la semana.
 _Avoid_: actividad, deporte, catálogo global
 
 **Día**:
