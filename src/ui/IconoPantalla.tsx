@@ -105,3 +105,19 @@ export function TituloPantalla({
     </h1>
   );
 }
+
+export function BotonQuitar({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className="boton-quitar"
+      onClick={onClick}
+      aria-label="Quitar"
+    >
+      <svg viewBox="0 0 48 48" aria-hidden>
+        <path d="M14 14 l20 20" {...trazo} />
+        <path d="M34 14 l-20 20" {...trazo} />
+      </svg>
+    </button>
+  );
+}

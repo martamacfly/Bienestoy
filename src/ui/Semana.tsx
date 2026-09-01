@@ -11,7 +11,7 @@ import {
   lunesDe,
   sumarDias,
 } from "../bienestoy";
-import { IconoHecho, TituloPantalla } from "./IconoPantalla";
+import { BotonQuitar, IconoHecho, TituloPantalla } from "./IconoPantalla";
 import { EditorGuion } from "./EditorGuion";
 import { SelectorActividad } from "./SelectorActividad";
 import { NombreConCuanto } from "./NombreConCuanto";
@@ -173,12 +173,19 @@ export function Semana({
               {editando && (
                 <>
                   {sesion ? (
-                    <p className="ficha-subtitulo">
-                      <NombreConCuanto
-                        nombre={sesion.actividadNombre}
-                        cuanto={sesion.cuanto}
+                    <div className="ficha-subtitulo-fila">
+                      <p className="ficha-subtitulo">
+                        <NombreConCuanto
+                          nombre={sesion.actividadNombre}
+                          cuanto={sesion.cuanto}
+                        />
+                      </p>
+                      <BotonQuitar
+                        onClick={() =>
+                          dispatch({ tipo: "quitarSesion", fecha })
+                        }
                       />
-                    </p>
+                    </div>
                   ) : (
                     <p className="vacio">Sin sesión</p>
                   )}
@@ -205,14 +212,6 @@ export function Semana({
                           dispatch({ tipo: "reemplazarGuion", fecha, lineas })
                         }
                       />
-                      <button
-                        className="boton secundario"
-                        onClick={() =>
-                          dispatch({ tipo: "quitarSesion", fecha })
-                        }
-                      >
-                        Quitar
-                      </button>
                     </div>
                   )}
                   <details className="detalle-dia">
@@ -232,8 +231,7 @@ export function Semana({
                                 cuanto={extra.cuanto}
                               />
                             </span>
-                            <button
-                              className="boton secundario"
+                            <BotonQuitar
                               onClick={() =>
                                 dispatch({
                                   tipo: "quitarExtra",
@@ -241,9 +239,7 @@ export function Semana({
                                   indice,
                                 })
                               }
-                            >
-                              Quitar
-                            </button>
+                            />
                           </li>
                         ))}
                       </ul>

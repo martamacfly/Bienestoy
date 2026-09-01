@@ -9,7 +9,7 @@ import {
 } from "../bienestoy";
 import { usarDeslizar } from "./deslizar";
 import { FlechasDeslizar } from "./FlechasDeslizar";
-import { IconoHecho, IconoPantalla, TituloPantalla } from "./IconoPantalla";
+import { IconoHecho, IconoPantalla, TituloPantalla, BotonQuitar } from "./IconoPantalla";
 import { SelectorActividad } from "./SelectorActividad";
 import { ContadorHiit } from "./ContadorHiit";
 import { NombreConCuanto } from "./NombreConCuanto";
@@ -52,14 +52,11 @@ function ExtrasDelDia({
                   })
                 }
               />
-              <button
-                className="boton secundario"
+              <BotonQuitar
                 onClick={() =>
                   dispatch({ tipo: "quitarExtra", fecha, indice })
                 }
-              >
-                Quitar
-              </button>
+              />
             </li>
           ))}
         </ul>

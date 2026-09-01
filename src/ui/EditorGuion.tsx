@@ -5,6 +5,7 @@ import type {
   UnidadEjercicio,
 } from "../bienestoy";
 import { cuantoDesdeCampos } from "../bienestoy";
+import { BotonQuitar } from "./IconoPantalla";
 
 function conCuanto<T extends PlantillaEjercicio>(
   linea: T,
@@ -85,9 +86,7 @@ function FilaEjercicio<T extends PlantillaEjercicio>({
         <option value="repeticiones">rep</option>
         <option value="segundos">s</option>
       </select>
-      <button className="boton secundario" onClick={onQuitar}>
-        Quitar
-      </button>
+      <BotonQuitar onClick={onQuitar} />
     </div>
   );
 }

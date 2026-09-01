@@ -69,6 +69,12 @@ describe("Catálogo", () => {
     ).toBeTruthy();
     expect(nodo.querySelector("input[aria-label='Cantidad']")).toBeTruthy();
     expect(nodo.querySelector("select[aria-label='Unidad']")).toBeTruthy();
+    expect(nodo.querySelector("button[aria-label='Quitar']")).toBeTruthy();
+    expect(
+      Array.from(nodo.querySelectorAll("button")).find(
+        (b) => b.textContent === "Quitar",
+      ),
+    ).toBeUndefined();
   });
 
   it("guarda repeticiones o segundos en cada ejercicio", async () => {
