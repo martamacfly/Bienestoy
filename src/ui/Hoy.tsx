@@ -170,16 +170,21 @@ export function Hoy({
             {sesion.guion.length > 0 && (
               <div className="guion">
                 <h3>Guion</h3>
-                {sesion.guion.map((linea, indice) => (
-                  <div className="linea-guion" key={`${linea.nombre}-${indice}`}>
-                    {linea.nombre}
-                    {linea.cuanto ? (
-                      <span className="linea-guion-cuanto">
-                        {etiquetaCuanto(linea.cuanto)}
-                      </span>
-                    ) : null}
-                  </div>
-                ))}
+                <ul className="lista-guion">
+                  {sesion.guion.map((linea, indice) => (
+                    <li
+                      className="linea-guion"
+                      key={`${linea.nombre}-${indice}`}
+                    >
+                      {linea.nombre}
+                      {linea.cuanto ? (
+                        <span className="linea-guion-cuanto">
+                          {etiquetaCuanto(linea.cuanto)}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </>

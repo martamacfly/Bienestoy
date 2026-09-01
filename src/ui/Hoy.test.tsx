@@ -131,7 +131,7 @@ describe("Hoy", () => {
       selector!.value = ID_CAMINAR;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
+    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar");
     expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
   });
 
@@ -159,7 +159,7 @@ describe("Hoy", () => {
       cantidad!.dispatchEvent(new Event("input", { bubbles: true }));
       cantidad!.blur();
     });
-    expect(nodo.querySelector("li")?.textContent).toContain("Caminar · 40 min");
+    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar · 40 min");
   });
 
   it("con sesión permite marcarla hecha y muestra el guion", async () => {
@@ -174,6 +174,9 @@ describe("Hoy", () => {
     expect(nodo.textContent).toContain("Actividad programada");
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
+    expect(
+      nodo.querySelectorAll(".lista-guion .linea-guion").length,
+    ).toBeGreaterThanOrEqual(3);
     expect(nodo.querySelectorAll("input[type='checkbox']")).toHaveLength(1);
     expect(
       Array.from(nodo.querySelectorAll("select")).find((el) =>
@@ -236,7 +239,7 @@ describe("Hoy", () => {
       selector!.value = ID_CAMINAR;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
+    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar");
   });
 
   it("permite marcar una sesión de un día pasado", async () => {

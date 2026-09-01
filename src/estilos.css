@@ -241,25 +241,9 @@ h3 {
 }
 
 .ficha .linea-guion {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.5rem;
   padding: 0.22rem 0 0.22rem 1.05rem;
   color: var(--tinta-suave);
   font-size: 0.95rem;
-}
-
-.ficha .linea-guion::before {
-  content: "";
-  position: absolute;
-  left: 0.12rem;
-  top: 0.68em;
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 99px;
-  background: var(--naranja-clara);
 }
 
 .ficha .vacio {
@@ -394,11 +378,23 @@ h3 {
 }
 
 .linea-guion {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 0.5rem;
-  padding: 0.35rem 0;
+  padding: 0.35rem 0 0.35rem 1.05rem;
+}
+
+.linea-guion::before {
+  content: "";
+  position: absolute;
+  left: 0.12rem;
+  top: 0.68em;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 99px;
+  background: var(--naranja-clara);
 }
 
 .lista-guion {
