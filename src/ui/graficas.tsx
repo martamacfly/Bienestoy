@@ -101,17 +101,37 @@ export function Linea({
 export function BarrasActividades({
   valores,
 }: {
-  valores: { etiqueta: string; valor: number }[];
+  valores: {
+    etiqueta: string;
+    hechas: number;
+    extras: number;
+    pendientes: number;
+    saltadas: number;
+  }[];
 }) {
-  const visibles = valores.filter((item) => item.valor > 0);
-  if (visibles.length === 0) return null;
+  const filas = valores
+    .map((item) => ({
+      etiqueta: item.etiqueta,
+      segmentos: [
+        { clave: "hechas", valor: item.hechas, color: "var(--naranja)" },
+        { clave: "extras", valor: item.extras, color: "var(--naranja-clara)" },
+        { clave: "pendientes", valor: item.pendientes, color: "#d3c8b4" },
+        { clave: "saltadas", valor: item.saltadas, color: "var(--terracota)" },
+      ].filter((seg) => seg.valor > 0),
+    }))
+    .filter((fila) => fila.segmentos.length > 0);
+  if (filas.length === 0) return null;
 
-  const max = Math.max(...visibles.map((item) => item.valor));
+  const max = Math.max(
+    ...filas.map((fila) =>
+      fila.segmentos.reduce((suma, seg) => suma + seg.valor, 0),
+    ),
+  );
   const ancho = 280;
-  const fila = 38;
+  const filaAlto = 38;
   const pad = 2;
   const altoBarra = 10;
-  const alto = visibles.length * fila;
+  const alto = filas.length * filaAlto;
   const maxAncho = ancho - pad - 22;
 
   return (
@@ -121,13 +141,14 @@ export function BarrasActividades({
       aria-label="Actividades"
       className="grafica"
     >
-      {visibles.map((item, i) => {
-        const y = i * fila;
-        const w = Math.max((item.valor / max) * maxAncho, 6);
+      {filas.map((fila, i) => {
+        const y = i * filaAlto;
+        const total = fila.segmentos.reduce((suma, seg) => suma + seg.valor, 0);
+        let x = pad;
         return (
-          <g key={item.etiqueta}>
+          <g key={fila.etiqueta}>
             <text x={pad} y={y + 12} fontSize="11" fill="var(--tinta)">
-              {item.etiqueta}
+              {fila.etiqueta}
             </text>
             <text
               x={ancho - pad}
@@ -136,19 +157,110 @@ export function BarrasActividades({
               fontSize="11"
               fill="var(--tinta-suave)"
             >
-              {item.valor}
+              {total}
             </text>
-            <rect
-              x={pad}
-              y={y + 18}
-              width={w}
-              height={altoBarra}
-              rx="4"
-              fill="var(--naranja)"
-            />
+            {fila.segmentos.map((seg) => {
+              const w = Math.max((seg.valor / max) * maxAncho, 4);
+              const rect = (
+                <rect
+                  key={seg.clave}
+                  x={x}
+                  y={y + 18}
+                  width={w}
+                  height={altoBarra}
+                  rx="3"
+                  fill={seg.color}
+                />
+              );
+              x += w + 1;
+              return rect;
+            })}
           </g>
         );
       })}
     </svg>
+  );
+}
+
+type Porcion = { etiqueta: string; valor: number; color: string };
+
+function puntoEnArco(
+  cx: number,
+  cy: number,
+  r: number,
+  grados: number,
+): { x: number; y: number } {
+  const rad = ((grados - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+export function Tarta({
+  porciones,
+  ariaLabel,
+}: {
+  porciones: Porcion[];
+  ariaLabel: string;
+}) {
+  const visibles = porciones.filter((item) => item.valor > 0);
+  const total = visibles.reduce((suma, item) => suma + item.valor, 0);
+  if (total === 0) return null;
+
+  const cx = 140;
+  const cy = 72;
+  const r = 58;
+  let acumulado = 0;
+  const trozos = visibles.map((item) => {
+    const inicio = (acumulado / total) * 360;
+    acumulado += item.valor;
+    const fin = (acumulado / total) * 360;
+    return { ...item, inicio, fin };
+  });
+
+  return (
+    <svg
+      viewBox="0 0 280 148"
+      role="img"
+      aria-label={ariaLabel}
+      className="grafica"
+    >
+      {trozos.map((trozo) => {
+        if (trozo.fin - trozo.inicio >= 359.9) {
+          return (
+            <circle
+              key={trozo.etiqueta}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill={trozo.color}
+            />
+          );
+        }
+        const a = puntoEnArco(cx, cy, r, trozo.inicio);
+        const b = puntoEnArco(cx, cy, r, trozo.fin);
+        const grande = trozo.fin - trozo.inicio > 180 ? 1 : 0;
+        return (
+          <path
+            key={trozo.etiqueta}
+            d={`M ${cx} ${cy} L ${a.x} ${a.y} A ${r} ${r} 0 ${grande} 1 ${b.x} ${b.y} Z`}
+            fill={trozo.color}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+export function Leyenda({ items }: { items: Porcion[] }) {
+  const visibles = items.filter((item) => item.valor > 0);
+  if (visibles.length === 0) return null;
+  return (
+    <ul className="leyenda">
+      {visibles.map((item) => (
+        <li key={item.etiqueta}>
+          <span className="leyenda-punto" style={{ background: item.color }} />
+          {item.etiqueta} {item.valor}
+        </li>
+      ))}
+    </ul>
   );
 }

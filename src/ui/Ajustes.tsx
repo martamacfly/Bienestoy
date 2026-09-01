@@ -1,17 +1,61 @@
 import { useRef, useState } from "react";
-import { exportarJSON, importarJSON, type Estado } from "../bienestoy";
+import {
+  esFechaIso,
+  etiquetaFecha,
+  exportarJSON,
+  importarJSON,
+  type Estado,
+  type IsoDate,
+} from "../bienestoy";
 import { TituloPantalla } from "./IconoPantalla";
+
+const CLAVE_ULTIMA_COPIA = "bienestoy.ultimaCopia";
+
+function leerUltimaCopia(): IsoDate | null {
+  const valor = localStorage.getItem(CLAVE_ULTIMA_COPIA);
+  return valor && esFechaIso(valor) ? valor : null;
+}
+
+function AvisoBorrar({
+  texto,
+  onSeguir,
+  onCancelar,
+}: {
+  texto: string;
+  onSeguir: () => void;
+  onCancelar: () => void;
+}) {
+  return (
+    <>
+      <p>{texto}</p>
+      <div className="fila">
+        <button className="boton peligro" onClick={onSeguir}>
+          Seguir
+        </button>
+        <button className="boton secundario" onClick={onCancelar}>
+          Cancelar
+        </button>
+      </div>
+    </>
+  );
+}
 
 export function Ajustes({
   estado,
+  hoy,
   onImportar,
+  onEmpezarDeCero,
 }: {
   estado: Estado;
+  hoy: IsoDate;
   onImportar: (estado: Estado) => void;
+  onEmpezarDeCero: () => void;
 }) {
   const archivo = useRef<HTMLInputElement>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [pendiente, setPendiente] = useState<Estado | null>(null);
+  const [vaciar, setVaciar] = useState(false);
+  const [ultimaCopia, setUltimaCopia] = useState<IsoDate | null>(leerUltimaCopia);
 
   function exportar() {
     const blob = new Blob([exportarJSON(estado)], { type: "application/json" });
@@ -21,6 +65,8 @@ export function Ajustes({
     enlace.download = "bienestoy.json";
     enlace.click();
     URL.revokeObjectURL(url);
+    localStorage.setItem(CLAVE_ULTIMA_COPIA, hoy);
+    setUltimaCopia(hoy);
     setMensaje("Copia descargada.");
   }
 
@@ -46,27 +92,15 @@ export function Ajustes({
 
       <section className="tarjeta">
         {pendiente ? (
-          <>
-            <p>Esto borra lo de este dispositivo. ¿Sigues?</p>
-            <div className="fila">
-              <button
-                className="boton peligro"
-                onClick={() => {
-                  onImportar(pendiente);
-                  setPendiente(null);
-                  setMensaje("Copia restaurada.");
-                }}
-              >
-                Seguir
-              </button>
-              <button
-                className="boton secundario"
-                onClick={() => setPendiente(null)}
-              >
-                Cancelar
-              </button>
-            </div>
-          </>
+          <AvisoBorrar
+            texto="Esto borra lo de este dispositivo. ¿Sigues?"
+            onSeguir={() => {
+              onImportar(pendiente);
+              setPendiente(null);
+              setMensaje("Copia restaurada.");
+            }}
+            onCancelar={() => setPendiente(null)}
+          />
         ) : (
           <>
             <button className="boton ancho" onClick={exportar}>
@@ -74,11 +108,15 @@ export function Ajustes({
             </button>
             <button
               className="boton secundario ancho"
-              style={{ marginTop: "0.6rem" }}
               onClick={() => archivo.current?.click()}
             >
               Importar JSON
             </button>
+            <p className="muted aviso-copia">
+              {ultimaCopia
+                ? `Última copia: ${etiquetaFecha(ultimaCopia)}`
+                : "Aún no has exportado en este dispositivo."}
+            </p>
           </>
         )}
         <input
@@ -93,6 +131,39 @@ export function Ajustes({
           }}
         />
         {mensaje && <p className="muted">{mensaje}</p>}
+      </section>
+
+      <section className="tarjeta">
+        <h2>En el teléfono</h2>
+        <p className="muted">
+          iPhone: en Safari, compartir → Añadir a pantalla de inicio.
+        </p>
+        <p className="muted">
+          Android: en Chrome, menú → Instalar aplicación.
+        </p>
+      </section>
+
+      <section className="tarjeta">
+        {vaciar ? (
+          <AvisoBorrar
+            texto="Esto borra el plan, las marcas y el cuerpo. ¿Sigues?"
+            onSeguir={() => {
+              onEmpezarDeCero();
+              setVaciar(false);
+              setMensaje("Listo. Empiezas de cero.");
+            }}
+            onCancelar={() => setVaciar(false)}
+          />
+        ) : (
+          <>
+            <p className="muted">
+              Si quieres partir de cero, primero exporta una copia.
+            </p>
+            <button className="boton peligro ancho" onClick={() => setVaciar(true)}>
+              Empezar de cero
+            </button>
+          </>
+        )}
       </section>
 
       <p className="muted version">Bienestoy {__APP_VERSION__}</p>

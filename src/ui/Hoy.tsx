@@ -3,11 +3,12 @@ import {
   deporteDelDia,
   diaDe,
   etiquetaFecha,
-  lunesDe,
+  fechaAlDeslizar,
   nombreDia,
 } from "../bienestoy";
-import { IconoHecho, TituloPantalla } from "./IconoPantalla";
+import { usarDeslizar } from "./deslizar";
 import { Dibujo } from "./Dibujo";
+import { IconoHecho, IconoPantalla, TituloPantalla } from "./IconoPantalla";
 import { SelectorActividad } from "./SelectorActividad";
 
 function ExtrasDelDia({
@@ -63,19 +64,25 @@ export function Hoy({
   fecha,
   hoy,
   dispatch,
+  onVerDia,
 }: {
   estado: Estado;
   fecha: IsoDate;
   hoy: IsoDate;
   dispatch: (accion: Accion) => void;
+  onVerDia: (fecha: IsoDate) => void;
 }) {
   const dia = diaDe(estado, fecha);
   const deporte = deporteDelDia(estado, fecha);
   const sesion = dia.sesion;
   const esHoy = fecha === hoy;
+  const deslizar = usarDeslizar((direccion) => {
+    const siguiente = fechaAlDeslizar(fecha, hoy, direccion);
+    if (siguiente) onVerDia(siguiente);
+  });
 
   return (
-    <main>
+    <main {...deslizar}>
       <header className="marca">
         <div>
           <TituloPantalla ruta="hoy">
@@ -87,14 +94,13 @@ export function Hoy({
           </TituloPantalla>
           <p>{etiquetaFecha(fecha)}</p>
         </div>
-        <div className="fila" style={{ justifyContent: "flex-end" }}>
-          <a href={`#/semana/${lunesDe(fecha)}`} className="muted">
-            Semana
-          </a>
-          <a href="#/cuerpo" className="muted">
-            Cuerpo
-          </a>
-        </div>
+        <a
+          href={fecha === hoy ? "#/cuerpo" : `#/cuerpo/${fecha}`}
+          className="atajo-icono"
+          aria-label="Cuerpo"
+        >
+          <IconoPantalla ruta="cuerpo" />
+        </a>
       </header>
 
       <section className="tarjeta">

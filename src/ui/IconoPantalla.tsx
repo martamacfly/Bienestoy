@@ -55,8 +55,8 @@ export function IconoPantalla({ ruta }: { ruta: Ruta }) {
     case "cuerpo":
       return (
         <Figura>
-          <circle cx="24" cy="10" r="4.5" {...trazo} />
-          <path d="M24 16 v12 M14 22 h20 M18 28 l-5 12 M30 28 l5 12" {...trazo} />
+          <rect x="4" y="16" width="40" height="16" rx="3" {...trazo} />
+          <path d="M12 19 v10 M18 19 v6 M24 19 v10 M30 19 v6 M36 19 v10" {...trazo} />
         </Figura>
       );
     case "catalogo":

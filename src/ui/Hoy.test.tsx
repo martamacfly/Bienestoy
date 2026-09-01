@@ -20,15 +20,25 @@ const HOY = "2026-08-24";
 function Arnes({
   fecha = HOY,
   inicial,
+  onVerDia = () => undefined,
 }: {
   fecha?: string;
   inicial?: Estado;
+  onVerDia?: (fecha: string) => void;
 }) {
   const [estado, setEstado] = useState<Estado>(inicial ?? estadoSemilla);
   function dispatch(accion: Accion) {
     setEstado((prev) => aplicar(prev, accion, { hoy: HOY }));
   }
-  return <Hoy estado={estado} fecha={fecha} hoy={HOY} dispatch={dispatch} />;
+  return (
+    <Hoy
+      estado={estado}
+      fecha={fecha}
+      hoy={HOY}
+      dispatch={dispatch}
+      onVerDia={onVerDia}
+    />
+  );
 }
 
 describe("Hoy", () => {
@@ -147,6 +157,10 @@ describe("Hoy", () => {
       raiz.render(<Arnes fecha={pasado} inicial={inicial} />);
     });
     expect(nodo.textContent).toContain("jueves 20/8/2026");
+    expect(
+      nodo.querySelector<HTMLAnchorElement>("a[aria-label='Cuerpo']")?.href,
+    ).toContain("#/cuerpo/2026-08-20");
+    expect(nodo.querySelector("a[href^='#/semana']")).toBeNull();
     const hecha = nodo.querySelector<HTMLInputElement>(
       "input[aria-label='Hecha']",
     );
@@ -157,5 +171,59 @@ describe("Hoy", () => {
       nodo.querySelector<HTMLInputElement>("input[aria-label='Hecha']")?.checked,
     ).toBe(true);
     expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
+  });
+
+  it("al deslizar a la derecha pasa al día anterior", async () => {
+    let visto = "";
+    await act(async () => {
+      raiz.render(<Arnes onVerDia={(fecha) => { visto = fecha; }} />);
+    });
+    const pantalla = nodo.querySelector("main");
+    await act(async () => {
+      pantalla!.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          clientX: 80,
+          clientY: 80,
+          pointerId: 1,
+        }),
+      );
+      pantalla!.dispatchEvent(
+        new PointerEvent("pointerup", {
+          bubbles: true,
+          clientX: 200,
+          clientY: 80,
+          pointerId: 1,
+        }),
+      );
+    });
+    expect(visto).toBe("2026-08-23");
+  });
+
+  it("al deslizar a la izquierda desde hoy no avanza al futuro", async () => {
+    let visto = "";
+    await act(async () => {
+      raiz.render(<Arnes onVerDia={(fecha) => { visto = fecha; }} />);
+    });
+    const pantalla = nodo.querySelector("main");
+    await act(async () => {
+      pantalla!.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          bubbles: true,
+          clientX: 200,
+          clientY: 80,
+          pointerId: 1,
+        }),
+      );
+      pantalla!.dispatchEvent(
+        new PointerEvent("pointerup", {
+          bubbles: true,
+          clientX: 80,
+          clientY: 80,
+          pointerId: 1,
+        }),
+      );
+    });
+    expect(visto).toBe("");
   });
 });

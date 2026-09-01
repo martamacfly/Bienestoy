@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { aplicar } from "./aplicar";
-import { lunesDe } from "./calendario";
+import { fechaAlDeslizar, lunesAlDeslizar, lunesDe } from "./calendario";
 import { inferirDibujo } from "./dibujos";
 import { normalizarEstado } from "./normalizar";
-import { cumplimientoSemana, deporteDelDia, diaDe, historialSemanas, resumenActividades, resumenDeporte, serieMedida } from "./consultas";
+import { cumplimientoSemana, deporteDelDia, diaDe, diasSemana, historialDias, historialSemanas, resumenActividades, resumenDeporte, serieMedida } from "./consultas";
 import { exportarJSON, importarJSON } from "./exportar";
 import { ID_CAMINAR, ID_CINTURA, ID_GYM, ID_RUNNING, ID_YOGA, estadoSemilla } from "./seed";
 import type { Accion, Estado } from "./types";
@@ -17,6 +17,18 @@ describe("semana lunes a domingo", () => {
   it("el lunes de un domingo es el lunes anterior", () => {
     expect(lunesDe("2026-08-30")).toBe(LUNES);
     expect(lunesDe(LUNES)).toBe(LUNES);
+  });
+
+  it("deslizar en Hoy va al día anterior y no pasa de hoy", () => {
+    expect(fechaAlDeslizar(MARTES, MARTES, "anterior")).toBe(LUNES);
+    expect(fechaAlDeslizar(LUNES, MARTES, "siguiente")).toBe(MARTES);
+    expect(fechaAlDeslizar(MARTES, MARTES, "siguiente")).toBeNull();
+  });
+
+  it("deslizar en Resumen va a la semana anterior y no pasa de esta", () => {
+    expect(lunesAlDeslizar(LUNES, MARTES, "anterior")).toBe("2026-08-17");
+    expect(lunesAlDeslizar("2026-08-17", MARTES, "siguiente")).toBe(LUNES);
+    expect(lunesAlDeslizar(LUNES, MARTES, "siguiente")).toBeNull();
   });
 });
 
@@ -399,6 +411,71 @@ describe("resumen", () => {
       saltadas: 1,
     });
     expect(filas.find((f) => f.nombre === "Caminar")?.extras).toBe(1);
+  });
+
+  it("cuenta días con extra o deporte, no solo los planificados", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: LUNES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: LUNES,
+      estado: "hecha",
+    });
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: MARTES,
+      actividadId: ID_CAMINAR,
+    });
+    expect(diasSemana(estado, LUNES, MARTES)).toEqual({
+      hechas: 2,
+      total: 2,
+    });
+    const semanas = historialDias(estado, MARTES, 2);
+    expect(semanas[1]).toMatchObject({
+      lunes: LUNES,
+      hechas: 2,
+      total: 2,
+    });
+  });
+
+  it("una sesión sin hacer sigue sin cumplir aunque otro día tenga extra", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: LUNES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: MARTES,
+      actividadId: ID_CAMINAR,
+    });
+    expect(diasSemana(estado, LUNES, MARTES)).toEqual({
+      hechas: 1,
+      total: 2,
+    });
+  });
+
+  it("un extra cuenta el día aunque la sesión del plan no esté hecha", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: LUNES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: LUNES,
+      actividadId: ID_CAMINAR,
+    });
+    expect(diasSemana(estado, LUNES, LUNES)).toEqual({
+      hechas: 1,
+      total: 1,
+    });
   });
 
   it("el historial de semanas incluye la actual y las anteriores", () => {

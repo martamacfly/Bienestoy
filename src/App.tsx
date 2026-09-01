@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   aplicar,
   esFechaIso,
+  estadoSemilla,
   hoyLocal,
   lunesDe,
   type Accion,
@@ -18,11 +19,11 @@ import { Resumen } from "./ui/Resumen";
 import { Semana } from "./ui/Semana";
 
 type Vista =
-  | { pantalla: "hoy" }
+  | { pantalla: "hoy"; fecha: IsoDate }
   | { pantalla: "dia"; fecha: IsoDate }
   | { pantalla: "semana"; lunes: IsoDate }
-  | { pantalla: "resumen" }
-  | { pantalla: "cuerpo" }
+  | { pantalla: "resumen"; lunes: IsoDate }
+  | { pantalla: "cuerpo"; fecha: IsoDate }
   | { pantalla: "catalogo" }
   | { pantalla: "ajustes" };
 
@@ -32,6 +33,12 @@ function vistaDesdeHash(hoy: IsoDate): Vista {
   const cabeza = partes[0] ?? "hoy";
   const dato = partes[1];
 
+  if (cabeza === "hoy") {
+    return {
+      pantalla: "hoy",
+      fecha: dato && esFechaIso(dato) ? dato : hoy,
+    };
+  }
   if (cabeza === "dia" && dato && esFechaIso(dato)) {
     return { pantalla: "dia", fecha: dato };
   }
@@ -41,11 +48,20 @@ function vistaDesdeHash(hoy: IsoDate): Vista {
       lunes: dato && esFechaIso(dato) ? lunesDe(dato) : lunesDe(hoy),
     };
   }
-  if (cabeza === "resumen") return { pantalla: "resumen" };
-  if (cabeza === "cuerpo") return { pantalla: "cuerpo" };
+  if (cabeza === "resumen") {
+    const tope = lunesDe(hoy);
+    const pedido = dato && esFechaIso(dato) ? lunesDe(dato) : tope;
+    return { pantalla: "resumen", lunes: pedido > tope ? tope : pedido };
+  }
+  if (cabeza === "cuerpo") {
+    return {
+      pantalla: "cuerpo",
+      fecha: dato && esFechaIso(dato) ? dato : hoy,
+    };
+  }
   if (cabeza === "catalogo") return { pantalla: "catalogo" };
   if (cabeza === "ajustes") return { pantalla: "ajustes" };
-  return { pantalla: "hoy" };
+  return { pantalla: "hoy", fecha: hoy };
 }
 
 function rutaNav(vista: Vista, hoy: IsoDate): Ruta {
@@ -91,6 +107,15 @@ export function App() {
   }
 
   function ir(siguiente: Ruta) {
+    if (
+      siguiente === "cuerpo" &&
+      (vista.pantalla === "hoy" || vista.pantalla === "dia")
+    ) {
+      irA(
+        vista.fecha === hoy ? "#/cuerpo" : `#/cuerpo/${vista.fecha}`,
+      );
+      return;
+    }
     irA(`#/${siguiente}`);
   }
 
@@ -111,16 +136,26 @@ export function App() {
   }
 
   const fechaDia =
-    vista.pantalla === "dia"
+    vista.pantalla === "dia" || vista.pantalla === "hoy"
       ? vista.fecha
-      : vista.pantalla === "hoy"
-        ? hoy
-        : null;
+      : null;
 
   return (
     <div className="app">
       {fechaDia && (
-        <Hoy estado={estado} fecha={fechaDia} hoy={hoy} dispatch={dispatch} />
+        <Hoy
+          estado={estado}
+          fecha={fechaDia}
+          hoy={hoy}
+          dispatch={dispatch}
+          onVerDia={(fecha) => {
+            if (vista.pantalla === "dia") {
+              irA(`#/dia/${fecha}`);
+              return;
+            }
+            irA(fecha === hoy ? "#/hoy" : `#/hoy/${fecha}`);
+          }}
+        />
       )}
       {vista.pantalla === "semana" && (
         <Semana
@@ -132,9 +167,24 @@ export function App() {
           onVerSemana={(lunes) => irA(`#/semana/${lunes}`)}
         />
       )}
-      {vista.pantalla === "resumen" && <Resumen estado={estado} hoy={hoy} />}
+      {vista.pantalla === "resumen" && (
+        <Resumen
+          estado={estado}
+          hoy={hoy}
+          lunes={vista.lunes}
+          onVerSemana={(lunes) =>
+            irA(lunes === lunesDe(hoy) ? "#/resumen" : `#/resumen/${lunes}`)
+          }
+        />
+      )}
       {vista.pantalla === "cuerpo" && (
-        <Cuerpo estado={estado} hoy={hoy} dispatch={dispatch} />
+        <Cuerpo
+          key={vista.fecha}
+          estado={estado}
+          fecha={vista.fecha}
+          hoy={hoy}
+          dispatch={dispatch}
+        />
       )}
       {vista.pantalla === "catalogo" && (
         <Catalogo estado={estado} dispatch={dispatch} />
@@ -142,9 +192,15 @@ export function App() {
       {vista.pantalla === "ajustes" && (
         <Ajustes
           estado={estado}
+          hoy={hoy}
           onImportar={(siguiente) => {
             setEstado(siguiente);
             void guardarEstado(siguiente);
+          }}
+          onEmpezarDeCero={() => {
+            const limpio = estadoSemilla();
+            setEstado(limpio);
+            void guardarEstado(limpio);
           }}
         />
       )}

@@ -38,6 +38,37 @@ export function cumplimientoSemana(
   return { hechas, planificadas };
 }
 
+function cuentaDia(estado: Estado, fecha: IsoDate): "hecha" | "sin_cumplir" | null {
+  const dia = diaDe(estado, fecha);
+  if (
+    dia.sesion?.estado === "hecha" ||
+    dia.extras.length > 0 ||
+    dia.deporteManual === true
+  ) {
+    return "hecha";
+  }
+  if (dia.sesion || dia.deporteManual === false) return "sin_cumplir";
+  return null;
+}
+
+export function diasSemana(
+  estado: Estado,
+  lunes: IsoDate,
+  hasta?: IsoDate,
+): { hechas: number; total: number } {
+  let hechas = 0;
+  let total = 0;
+  const tope = hasta ?? sumarDias(lunesDe(lunes), 6);
+  for (const fecha of fechasDeSemana(lunesDe(lunes))) {
+    if (fecha > tope) break;
+    const cuenta = cuentaDia(estado, fecha);
+    if (!cuenta) continue;
+    total += 1;
+    if (cuenta === "hecha") hechas += 1;
+  }
+  return { hechas, total };
+}
+
 export type SemanaEnHistorial = {
   lunes: IsoDate;
   hechas: number;
@@ -58,6 +89,27 @@ export function historialSemanas(
   return filas;
 }
 
+export type SemanaEnResumen = {
+  lunes: IsoDate;
+  hechas: number;
+  total: number;
+};
+
+export function historialDias(
+  estado: Estado,
+  hoy: IsoDate,
+  cuantas = 8,
+): SemanaEnResumen[] {
+  const origen = lunesDe(hoy);
+  const filas: SemanaEnResumen[] = [];
+  for (let i = cuantas - 1; i >= 0; i -= 1) {
+    const lunes = sumarDias(origen, -7 * i);
+    const hasta = lunes === origen ? hoy : undefined;
+    filas.push({ lunes, ...diasSemana(estado, lunes, hasta) });
+  }
+  return filas;
+}
+
 export type ActividadEnResumen = {
   nombre: string;
   hechas: number;
@@ -66,7 +118,10 @@ export type ActividadEnResumen = {
   extras: number;
 };
 
-export function resumenActividades(estado: Estado): ActividadEnResumen[] {
+export function resumenActividades(
+  estado: Estado,
+  rango?: { desde: IsoDate; hasta: IsoDate },
+): ActividadEnResumen[] {
   const mapa = new Map<string, ActividadEnResumen>();
 
   function fila(nombre: string): ActividadEnResumen {
@@ -83,7 +138,8 @@ export function resumenActividades(estado: Estado): ActividadEnResumen[] {
     return nueva;
   }
 
-  for (const dia of Object.values(estado.dias)) {
+  for (const [fecha, dia] of Object.entries(estado.dias)) {
+    if (rango && (fecha < rango.desde || fecha > rango.hasta)) continue;
     if (dia.sesion) {
       const item = fila(dia.sesion.actividadNombre);
       if (dia.sesion.estado === "hecha") item.hechas += 1;

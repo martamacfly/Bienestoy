@@ -22,11 +22,15 @@ export {
   lunesDe,
   nombreDia,
   sumarDias,
+  fechaAlDeslizar,
+  lunesAlDeslizar,
 } from "./calendario";
 export {
   cumplimientoSemana,
   deporteDelDia,
   diaDe,
+  diasSemana,
+  historialDias,
   historialSemanas,
   resumenActividades,
   resumenDeporte,

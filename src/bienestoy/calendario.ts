@@ -22,6 +22,30 @@ export function sumarDias(fecha: IsoDate, dias: number): IsoDate {
   return formatearFecha(d);
 }
 
+export function fechaAlDeslizar(
+  fecha: IsoDate,
+  hoy: IsoDate,
+  direccion: "anterior" | "siguiente",
+): IsoDate | null {
+  if (direccion === "anterior") return sumarDias(fecha, -1);
+  const siguiente = sumarDias(fecha, 1);
+  if (siguiente > hoy) return null;
+  return siguiente;
+}
+
+export function lunesAlDeslizar(
+  lunes: IsoDate,
+  hoy: IsoDate,
+  direccion: "anterior" | "siguiente",
+): IsoDate | null {
+  const actual = lunesDe(lunes);
+  const tope = lunesDe(hoy);
+  if (direccion === "anterior") return sumarDias(actual, -7);
+  const siguiente = sumarDias(actual, 7);
+  if (siguiente > tope) return null;
+  return siguiente;
+}
+
 export function lunesDe(fecha: IsoDate): IsoDate {
   const d = parsearFecha(fecha);
   const diaSemana = d.getDay();

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  etiquetaFecha,
   serieMedida,
   seriePesajes,
   type Accion,
@@ -11,31 +12,34 @@ import { TituloPantalla } from "./IconoPantalla";
 
 export function Cuerpo({
   estado,
+  fecha,
   hoy,
   dispatch,
 }: {
   estado: Estado;
+  fecha: IsoDate;
   hoy: IsoDate;
   dispatch: (accion: Accion) => void;
 }) {
   const [peso, setPeso] = useState(
-    estado.pesajes[hoy] !== undefined ? String(estado.pesajes[hoy]) : "",
+    estado.pesajes[fecha] !== undefined ? String(estado.pesajes[fecha]) : "",
   );
   const [nuevaMedida, setNuevaMedida] = useState("");
   const pesajes = seriePesajes(estado);
   const maxPeso = Math.max(...pesajes.map((p) => p.kg), 1);
+  const esHoy = fecha === hoy;
 
   return (
     <main>
       <header className="marca">
         <div>
           <TituloPantalla ruta="cuerpo">Cuerpo</TituloPantalla>
-          <p>Peso y medidas simples. Sin metas.</p>
+          <p>{etiquetaFecha(fecha)}</p>
         </div>
       </header>
 
       <section className="tarjeta">
-        <h2>Pesaje de hoy</h2>
+        <h2>{esHoy ? "Pesaje de hoy" : "Pesaje"}</h2>
         <label className="campo">
           kg
           <input
@@ -49,7 +53,7 @@ export function Cuerpo({
           onClick={() => {
             const kg = Number(peso.replace(",", "."));
             if (!Number.isFinite(kg) || kg <= 0) return;
-            dispatch({ tipo: "registrarPesaje", fecha: hoy, kg });
+            dispatch({ tipo: "registrarPesaje", fecha, kg });
           }}
         >
           Guardar peso
@@ -62,14 +66,14 @@ export function Cuerpo({
           <p className="vacio">Añade una medida, por ejemplo cintura.</p>
         ) : (
           estado.medidas.map((medida) => (
-            <MedidaHoy
-              key={medida.id}
+            <MedidaDelDia
+              key={`${medida.id}-${fecha}`}
               nombre={`${medida.nombre} (${medida.unidad})`}
-              valor={estado.valoresMedida[hoy]?.[medida.id]}
+              valor={estado.valoresMedida[fecha]?.[medida.id]}
               onGuardar={(valor) =>
                 dispatch({
                   tipo: "registrarMedida",
-                  fecha: hoy,
+                  fecha,
                   medidaId: medida.id,
                   valor,
                 })
@@ -187,7 +191,7 @@ export function Cuerpo({
   );
 }
 
-function MedidaHoy({
+function MedidaDelDia({
   nombre,
   valor,
   onGuardar,
