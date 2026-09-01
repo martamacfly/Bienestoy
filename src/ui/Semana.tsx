@@ -146,6 +146,9 @@ export function Semana({
                   )}
                 </>
               )}
+              {!editando && !sesion && (
+                <p className="ficha-subtitulo">Descanso</p>
+              )}
               {!editando && dia.extras.length > 0 && (
                 <p className="muted extra-dia">
                   Extra:{" "}
@@ -187,7 +190,7 @@ export function Semana({
                       />
                     </div>
                   ) : (
-                    <p className="vacio">Sin sesión</p>
+                    <p className="ficha-subtitulo">Descanso</p>
                   )}
                   <SelectorActividad
                     actividades={estado.actividades}

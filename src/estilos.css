@@ -5,6 +5,7 @@
   --tinta-suave: #7a6458;
   --naranja: #d35a1c;
   --naranja-clara: #e07a3d;
+  --naranja-oscura: #9c3a12;
   --terracota: #9c2f2a;
   --ok: #c44b12;
   --sombra: 0 10px 30px rgba(42, 28, 20, 0.08);
@@ -258,6 +259,7 @@ h3 {
   margin: 0.15rem 0 0;
   font-size: 1rem;
   font-weight: 650;
+  color: var(--naranja-oscura);
 }
 
 .ficha-subtitulo-fila {
@@ -392,6 +394,7 @@ h3 {
 .marca-sesion h2 {
   margin: 0;
   flex: 1;
+  color: var(--naranja-oscura);
 }
 
 .icono-hecho {
@@ -414,6 +417,7 @@ h3 {
 .fila-hecho h2 {
   margin: 0;
   flex: 1;
+  color: var(--naranja-oscura);
 }
 
 .linea-guion {
@@ -649,6 +653,10 @@ h2 .cuanto,
   gap: 0.12rem;
   flex: 1;
   min-width: 0;
+}
+
+.resumen-actividad > span {
+  color: var(--naranja-oscura);
 }
 
 .resumen-actividad-cuenta {

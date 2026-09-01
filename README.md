@@ -1,6 +1,6 @@
 # Bienestoy
 
-App personal para ver el **plan de la semana** (lunes a domingo) y si se cumplió. Una sesión planificada por día; en Hoy se marca hecha. Si un día no tenía plan, se puede apuntar un extra. El peso y las medidas van al lado, no mandan.
+App personal para ver el **plan de la semana** (lunes a domingo) y si se cumplió. Una sesión planificada por día; en Hoy se marca hecha. Un día sin plan es **Descanso**; si se hizo algo, se apunta como extra. El peso y las medidas van al lado, no mandan.
 
 Sin cuenta ni nube. Los datos viven en este dispositivo.
 
@@ -8,11 +8,11 @@ Sin cuenta ni nube. Los datos viven en este dispositivo.
 
 ## Qué hace
 
-- **Hoy** — si hay sesión, un check; si el día está vacío, sí o no de deporte y, si hubo, qué se hizo. Se puede deslizar a días anteriores (no al futuro). Atajo a Cuerpo de ese día.
-- **Semana** — el plan (o el vacío); editar días y ejercicios; copiar la semana anterior. Cualquier día se puede apuntar.
-- **Catálogo** — actividades y ejercicios.
-- **Resumen** — deporte, días hechos (plan o extra) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
-- **Cuerpo** — pesaje y medidas del día que estás viendo.
+- **Hoy** — si hay sesión, actividad programada y un check si está hecha; si no hay plan, día de descanso. Siempre se puede apuntar un extra (con repeticiones o tiempo). Contador HIIT. Se puede deslizar a días anteriores (no al futuro). Atajo a Cuerpo de ese día.
+- **Semana** — el plan de cada día (actividad y ejercicios, o Descanso). Al editar se cambian días y ejercicios, y se puede copiar la semana anterior. Cualquier día se puede apuntar.
+- **Catálogo** — actividades y ejercicios, con repeticiones o tiempo.
+- **Resumen** — días con deporte, actividades programadas y extras (con tiempo o repeticiones) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
+- **Cuerpo** — pesaje (kg) y medidas fijas: cintura, brazo y cadera (cm).
 - **Ajustes** — exportar e importar una copia JSON, ver cuándo fue la última copia, instalar la app y empezar de cero.
 
 No es un programa de gym, ni un tracker de duración, ni una app de hábitos.

@@ -76,6 +76,11 @@ describe("Semana", () => {
     expect(nodo.textContent).toContain("24–30 ago 2026");
     expect(nodo.textContent).toContain("lunes 24/8/2026");
     expect(nodo.querySelectorAll(".ficha")).toHaveLength(7);
+    expect(
+      Array.from(nodo.querySelectorAll(".ficha")).filter((ficha) =>
+        ficha.textContent?.includes("Descanso"),
+      ),
+    ).toHaveLength(7);
     expect(nodo.textContent).toContain("Editar");
     expect(
       Array.from(nodo.querySelectorAll("select")).find((el) =>
@@ -99,6 +104,11 @@ describe("Semana", () => {
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
     expect(nodo.textContent).toContain("3 ejercicios");
+    expect(
+      Array.from(nodo.querySelectorAll(".ficha")).filter((ficha) =>
+        ficha.textContent?.includes("Descanso"),
+      ),
+    ).toHaveLength(6);
     expect(nodo.textContent).not.toContain("Sentadilla · Press");
     expect(nodo.querySelectorAll(".lista-guion .linea-guion")).toHaveLength(3);
     expect(nodo.querySelector(".icono-hecho")).toBeNull();
