@@ -1,6 +1,7 @@
 import {
   diasSemana,
   etiquetaSemana,
+  etiquetaTotalesCuanto,
   historialDias,
   lunesAlDeslizar,
   lunesDe,
@@ -20,6 +21,28 @@ import { TituloPantalla } from "./IconoPantalla";
 function corta(fecha: IsoDate): string {
   const [, mes, dia] = fecha.split("-");
   return `${Number(dia)}/${Number(mes)}`;
+}
+
+function pieza(n: number, una: string, varias: string): string | undefined {
+  if (n === 1) return `1 ${una}`;
+  if (n > 1) return `${n} ${varias}`;
+  return undefined;
+}
+
+function cuentaActividad(a: {
+  hechas: number;
+  extras: number;
+  pendientes: number;
+  saltadas: number;
+}): string {
+  return [
+    pieza(a.hechas, "programada", "programadas"),
+    pieza(a.extras, "extra", "extras"),
+    pieza(a.pendientes, "pendiente", "pendientes"),
+    pieza(a.saltadas, "saltada", "saltadas"),
+  ]
+    .filter((parte): parte is string => Boolean(parte))
+    .join(" · ");
 }
 
 const COLOR_SI = "var(--naranja)";
@@ -61,7 +84,7 @@ export function Resumen({
     { etiqueta: "sin marcar", valor: deporte.sinMarcar, color: COLOR_SUAVE },
   ];
   const porcionesDias = [
-    { etiqueta: "hechas", valor: estaSemana.hechas, color: COLOR_SI },
+    { etiqueta: "con deporte", valor: estaSemana.hechas, color: COLOR_SI },
     { etiqueta: "sin cumplir", valor: noCumplidas, color: COLOR_PENDIENTE },
   ];
   const deslizar = usarDeslizar((direccion) => {
@@ -118,7 +141,7 @@ export function Resumen({
       </section>
 
       <section className="tarjeta">
-        <h2>Cumplimiento (8 semanas)</h2>
+        <h2>Días con deporte (8 semanas)</h2>
         {hayDias ? (
           <Barras
             valores={semanas.map((s) => ({
@@ -148,7 +171,7 @@ export function Resumen({
             <Leyenda
               items={[
                 {
-                  etiqueta: "hechas",
+                  etiqueta: "programadas",
                   valor: actividades.reduce((s, a) => s + a.hechas, 0),
                   color: COLOR_SI,
                 },
@@ -169,9 +192,33 @@ export function Resumen({
                 },
               ]}
             />
+            <ul className="lista">
+              {actividades.map((actividad) => {
+                const cantidades = etiquetaTotalesCuanto(actividad);
+                const cuenta = cuentaActividad(actividad);
+                if (!cuenta && !cantidades) return null;
+                return (
+                  <li key={actividad.nombre}>
+                    <div className="resumen-actividad">
+                      <span>
+                        {actividad.nombre}
+                        {cantidades ? (
+                          <span className="cuanto"> · {cantidades}</span>
+                        ) : null}
+                      </span>
+                      {cuenta ? (
+                        <p className="muted resumen-actividad-cuenta">
+                          {cuenta}
+                        </p>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </>
         ) : (
-          <p className="vacio">Aún no hay sesiones ni extras.</p>
+          <p className="vacio">Aún no hay actividad programada ni extra.</p>
         )}
       </section>
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { Accion, Estado } from "../bienestoy";
+import { etiquetaCuanto } from "../bienestoy";
 import { TituloPantalla } from "./IconoPantalla";
-import { EditorGuion } from "./EditorGuion";
+import { CamposCuantoActividad, EditorGuion } from "./EditorGuion";
+import { NombreConCuanto } from "./NombreConCuanto";
 
 export function Catalogo({
   estado,
@@ -19,16 +21,16 @@ export function Catalogo({
         <div>
           <TituloPantalla ruta="catalogo">Catálogo</TituloPantalla>
           <p>Actividades y sus ejercicios.</p>
+          {editando ? (
+            <button className="boton" onClick={() => setEditando(false)}>
+              Listo
+            </button>
+          ) : (
+            <button className="boton" onClick={() => setEditando(true)}>
+              Editar
+            </button>
+          )}
         </div>
-        {editando ? (
-          <button className="boton" onClick={() => setEditando(false)}>
-            Listo
-          </button>
-        ) : (
-          <button className="boton" onClick={() => setEditando(true)}>
-            Editar
-          </button>
-        )}
       </header>
 
       {estado.actividades.length === 0 ? (
@@ -57,6 +59,19 @@ export function Catalogo({
                       }}
                     />
                   </label>
+                  <label className="campo">
+                    Repeticiones o tiempo
+                    <CamposCuantoActividad
+                      cuanto={actividad.cuanto}
+                      onCambiar={(cuanto) =>
+                        dispatch({
+                          tipo: "definirCuantoActividad",
+                          id: actividad.id,
+                          cuanto,
+                        })
+                      }
+                    />
+                  </label>
                   <p className="muted">Ejercicios</p>
                   <EditorGuion
                     lineas={actividad.guionPorDefecto}
@@ -83,7 +98,12 @@ export function Catalogo({
               ) : (
                 <>
                   <header className="ficha-cabecera">
-                    <h2>{actividad.nombre}</h2>
+                    <h2>
+                      <NombreConCuanto
+                        nombre={actividad.nombre}
+                        cuanto={actividad.cuanto}
+                      />
+                    </h2>
                     {actividad.guionPorDefecto.length > 0 ? (
                       <p className="ficha-cuenta">
                         {actividad.guionPorDefecto.length === 1
@@ -100,6 +120,11 @@ export function Catalogo({
                           key={`${linea.nombre}-${indice}`}
                         >
                           {linea.nombre}
+                          {linea.cuanto ? (
+                            <span className="linea-guion-cuanto">
+                              {etiquetaCuanto(linea.cuanto)}
+                            </span>
+                          ) : null}
                         </li>
                       ))}
                     </ul>

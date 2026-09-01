@@ -20,6 +20,15 @@ function conMarcas(): Estado {
   let estado = estadoSemilla();
   estado = aplicar(
     estado,
+    {
+      tipo: "definirCuantoActividad",
+      id: ID_GYM,
+      cuanto: { valor: 45, unidad: "minutos" },
+    },
+    { hoy: HOY },
+  );
+  estado = aplicar(
+    estado,
     { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
     { hoy: HOY },
   );
@@ -31,6 +40,16 @@ function conMarcas(): Estado {
   estado = aplicar(
     estado,
     { tipo: "anadirExtra", fecha: HOY, actividadId: ID_CAMINAR },
+    { hoy: HOY },
+  );
+  estado = aplicar(
+    estado,
+    {
+      tipo: "definirCuantoExtra",
+      fecha: HOY,
+      indice: 0,
+      cuanto: { valor: 40, unidad: "minutos" },
+    },
     { hoy: HOY },
   );
   return estado;
@@ -71,7 +90,7 @@ describe("Resumen", () => {
       pintar(estadoSemilla());
     });
     expect(nodo.querySelector("svg[aria-label='Actividades']")).toBeNull();
-    expect(nodo.textContent).toContain("Aún no hay sesiones ni extras");
+    expect(nodo.textContent).toContain("Aún no hay actividad programada ni extra");
     expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeTruthy();
     expect(nodo.textContent).toContain("sin marcar");
   });
@@ -88,6 +107,12 @@ describe("Resumen", () => {
     expect(grafica?.textContent).toContain("Gym");
     expect(grafica?.textContent).toContain("Caminar");
     expect(grafica?.querySelectorAll("rect").length).toBeGreaterThanOrEqual(2);
+    expect(nodo.textContent).toContain("programadas 1");
+    expect(nodo.textContent).toContain("extras 1");
+    expect(nodo.textContent).toContain("Gym · 45 min");
+    expect(nodo.textContent).toContain("1 programada");
+    expect(nodo.textContent).toContain("Caminar · 40 min");
+    expect(nodo.textContent).toContain("1 extra");
   });
 
   it("un extra sin plan cuenta en los días y en las 8 semanas", async () => {
@@ -101,7 +126,7 @@ describe("Resumen", () => {
       pintar(estado);
     });
     expect(nodo.querySelector("svg[aria-label='Días']")).toBeTruthy();
-    expect(nodo.textContent).toContain("hechas 1");
+    expect(nodo.textContent).toContain("con deporte 1");
     expect(nodo.querySelector("svg[aria-label='Cumplimiento por semana']")).toBeTruthy();
     expect(nodo.textContent).not.toContain("Cuando tengas un plan");
     expect(nodo.querySelector("svg[aria-label='Actividades']")?.textContent).toContain(

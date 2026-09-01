@@ -113,6 +113,10 @@ h3 {
   font-size: 0.9rem;
 }
 
+.marca .boton {
+  margin-top: 0.55rem;
+}
+
 .marca .flechas-deslizar {
   color: var(--tinta-suave);
 }
@@ -238,6 +242,10 @@ h3 {
 
 .ficha .linea-guion {
   position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
   padding: 0.22rem 0 0.22rem 1.05rem;
   color: var(--tinta-suave);
   font-size: 0.95rem;
@@ -303,11 +311,15 @@ h3 {
 .lista li {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.7rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid #eee4d4;
   flex-wrap: wrap;
+}
+
+.lista .linea-ejercicio {
+  margin: 0;
 }
 
 .enlace-dia {
@@ -382,6 +394,10 @@ h3 {
 }
 
 .linea-guion {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
   padding: 0.35rem 0;
 }
 
@@ -414,6 +430,44 @@ h3 {
   background: #fff;
   font: inherit;
   font-size: 0.9rem;
+}
+
+.linea-ejercicio-cuanto {
+  flex: 0 0 3.4rem;
+  width: 3.4rem;
+  min-width: 0;
+}
+
+.linea-actividad-cuanto .linea-ejercicio-cuanto {
+  flex: 0 0 4.8rem;
+  width: 4.8rem;
+}
+
+.linea-ejercicio select {
+  flex: 0 0 auto;
+  border: 1px solid #d3c8b4;
+  border-radius: 10px;
+  padding: 0.4rem 0.4rem;
+  background: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.linea-guion-cuanto,
+.cuanto {
+  color: var(--naranja);
+  font-size: 0.82rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+h2 .cuanto,
+.ficha-subtitulo .cuanto {
+  font-size: 0.85em;
+}
+
+.linea-guion-cuanto {
+  margin-left: auto;
 }
 
 .nav {
@@ -520,6 +574,10 @@ h3 {
   margin-top: 0.5rem;
 }
 
+.leyenda + .lista {
+  margin-top: 0.55rem;
+}
+
 .bloque-grafica {
   margin-top: 0.85rem;
 }
@@ -548,8 +606,80 @@ h3 {
   vertical-align: middle;
 }
 
+.resumen-actividad {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.resumen-actividad-cuenta {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
 .version {
   margin-top: 1.2rem;
   font-size: 0.85rem;
   text-align: center;
+}
+
+.boton-hiit {
+  margin-top: 0.35rem;
+}
+
+.contador-hiit {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #f7f3ea;
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.contador-hiit.trabajo {
+  background: var(--naranja);
+}
+
+.contador-hiit.descanso {
+  background: #1a7a62;
+}
+
+.contador-hiit.fin {
+  background: var(--tinta);
+}
+
+.contador-hiit-fase {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.contador-hiit-numero {
+  margin: 0;
+  margin-left: auto;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.contador-hiit-ronda {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.contador-hiit .boton {
+  flex-shrink: 0;
+  background: #f7f3ea;
+  color: var(--tinta);
 }

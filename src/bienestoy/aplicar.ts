@@ -1,6 +1,6 @@
 import { fechasDeSemana, lunesDe, sumarDias } from "./calendario";
 import { diaDe } from "./consultas";
-import { lineaDesdeNombre } from "./lineas";
+import { cuantoValido, lineaDesdePlantilla, plantillaLimpia } from "./lineas";
 import { medidasFijas } from "./seed";
 import type {
   Accion,
@@ -10,6 +10,7 @@ import type {
   Estado,
   Extra,
   IsoDate,
+  LineaGuion,
   Sesion,
 } from "./types";
 
@@ -34,19 +35,25 @@ function actividadPorId(estado: Estado, id: string): Actividad | undefined {
 }
 
 function sesionDesdeActividad(actividad: Actividad): Sesion {
+  const cuanto = cuantoValido(actividad.cuanto);
   return {
     actividadId: actividad.id,
     actividadNombre: actividad.nombre,
     estado: "pendiente",
-    guion: actividad.guionPorDefecto.map((linea) => ({
-      nombre: linea.nombre,
-      tachado: false,
-    })),
+    ...(cuanto ? { cuanto } : {}),
+    guion: actividad.guionPorDefecto
+      .map((linea) => lineaDesdePlantilla(linea))
+      .filter((linea): linea is NonNullable<typeof linea> => linea !== null),
   };
 }
 
 function extraDesdeActividad(actividad: Actividad): Extra {
-  return { actividadId: actividad.id, actividadNombre: actividad.nombre };
+  const cuanto = cuantoValido(actividad.cuanto);
+  return {
+    actividadId: actividad.id,
+    actividadNombre: actividad.nombre,
+    ...(cuanto ? { cuanto } : {}),
+  };
 }
 
 function colocarSesion(
@@ -110,7 +117,7 @@ function tacharGuion(
 function reemplazarGuion(
   estado: Estado,
   fecha: IsoDate,
-  lineas: { nombre: string; tachado?: boolean }[],
+  lineas: LineaGuion[],
 ): Estado {
   const dia = diaDe(estado, fecha);
   if (!dia.sesion) return estado;
@@ -119,11 +126,8 @@ function reemplazarGuion(
     sesion: {
       ...dia.sesion,
       guion: lineas
-        .map((linea) => ({
-          ...lineaDesdeNombre(linea.nombre),
-          tachado: linea.tachado === true,
-        }))
-        .filter((linea) => linea.nombre),
+        .map((linea) => lineaDesdePlantilla(linea))
+        .filter((linea): linea is NonNullable<typeof linea> => linea !== null),
     },
   });
   return estado;
@@ -150,6 +154,29 @@ function quitarExtra(estado: Estado, fecha: IsoDate, indice: number): Estado {
   escribirDia(estado, fecha, {
     ...dia,
     extras: dia.extras.filter((_, i) => i !== indice),
+  });
+  return estado;
+}
+
+function definirCuantoExtra(
+  estado: Estado,
+  fecha: IsoDate,
+  indice: number,
+  pedido?: Extra["cuanto"],
+): Estado {
+  const dia = diaDe(estado, fecha);
+  const extra = dia.extras[indice];
+  if (!extra) return estado;
+  const cuanto = cuantoValido(pedido);
+  escribirDia(estado, fecha, {
+    ...dia,
+    extras: dia.extras.map((item, i) => {
+      if (i !== indice) return item;
+      const siguiente = { ...item };
+      if (cuanto) siguiente.cuanto = cuanto;
+      else delete siguiente.cuanto;
+      return siguiente;
+    }),
   });
   return estado;
 }
@@ -181,7 +208,7 @@ function copiarSemanaAnterior(
           ...origenDia.sesion,
           estado: "pendiente" as const,
           guion: origenDia.sesion.guion.map((linea) => ({
-            nombre: linea.nombre,
+            ...linea,
             tachado: false,
           })),
         }
@@ -221,6 +248,13 @@ export function aplicar(
       return anadirExtra(siguiente, accion.fecha, accion.actividadId);
     case "quitarExtra":
       return quitarExtra(siguiente, accion.fecha, accion.indice);
+    case "definirCuantoExtra":
+      return definirCuantoExtra(
+        siguiente,
+        accion.fecha,
+        accion.indice,
+        accion.cuanto,
+      );
     case "responderDeporte":
       return responderDeporte(siguiente, accion.fecha, accion.si);
     case "registrarPesaje":
@@ -249,12 +283,20 @@ export function aplicar(
       act.nombre = accion.nombre.trim();
       return siguiente;
     }
+    case "definirCuantoActividad": {
+      const act = actividadPorId(siguiente, accion.id);
+      if (!act) return estado;
+      const cuanto = cuantoValido(accion.cuanto);
+      if (cuanto) act.cuanto = cuanto;
+      else delete act.cuanto;
+      return siguiente;
+    }
     case "definirGuionActividad": {
       const act = actividadPorId(siguiente, accion.id);
       if (!act) return estado;
       act.guionPorDefecto = accion.lineas
-        .map((linea) => ({ nombre: lineaDesdeNombre(linea.nombre).nombre }))
-        .filter((linea) => linea.nombre);
+        .map((linea) => plantillaLimpia(linea))
+        .filter((linea): linea is NonNullable<typeof linea> => linea !== null);
       return siguiente;
     }
     case "eliminarActividad":

@@ -61,8 +61,9 @@ describe("Hoy", () => {
       raiz.render(<Arnes />);
     });
     expect(nodo.textContent).toContain("Día de descanso");
-    expect(nodo.textContent).toContain("Qué se hizo");
-    expect(nodo.textContent).toContain("Añadir actividad");
+    expect(nodo.textContent).toContain("Actividad extra");
+    expect(nodo.textContent).not.toContain("Actividad programada");
+    expect(nodo.textContent).toContain("Añadir extra");
     expect(nodo.textContent).not.toContain("Sin sesión planificada");
     expect(
       Array.from(nodo.querySelectorAll("button")).find(
@@ -77,12 +78,54 @@ describe("Hoy", () => {
     expect(nodo.querySelector(".icono-hecho")).toBeNull();
   });
 
+  it("abre un contador HIIT con cuenta atrás de 5 s", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    const hiit = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "HIIT",
+    );
+    await act(async () => {
+      hiit!.click();
+    });
+    const panel = nodo.querySelector("[aria-label='Contador HIIT']");
+    expect(panel).toBeTruthy();
+    expect(nodo.querySelector("main [aria-label='Contador HIIT']")).toBeTruthy();
+    expect(panel?.className).toContain("descanso");
+    expect(panel?.textContent).toContain("5");
+    expect(panel?.textContent).toContain("Cuenta atrás");
+    expect(panel?.textContent).toContain("Ronda 1 de 5");
+    expect(nodo.querySelector("main .tarjeta h2")?.textContent).toContain(
+      "Día de descanso",
+    );
+  });
+
+  it("deja ver la sesión del día con el contador HIIT abierto", async () => {
+    const inicial = aplicar(
+      estadoSemilla(),
+      { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(<Arnes inicial={inicial} />);
+    });
+    const hiit = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "HIIT",
+    );
+    await act(async () => {
+      hiit!.click();
+    });
+    expect(nodo.querySelector("main [aria-label='Contador HIIT']")).toBeTruthy();
+    expect(nodo.querySelector("main .tarjeta h2")?.textContent).toContain("Gym");
+    expect(nodo.textContent).toContain("Sentadilla");
+  });
+
   it("al apuntar una actividad en día de descanso muestra el check", async () => {
     await act(async () => {
       raiz.render(<Arnes />);
     });
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Añadir actividad"),
+      el.closest("label")?.textContent?.includes("Añadir extra"),
     );
     await act(async () => {
       selector!.value = ID_CAMINAR;
@@ -90,6 +133,33 @@ describe("Hoy", () => {
     });
     expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
     expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
+  });
+
+  it("al apuntar una actividad permite poner tiempo o repeticiones", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
+      el.closest("label")?.textContent?.includes("Añadir extra"),
+    );
+    await act(async () => {
+      selector!.value = ID_CAMINAR;
+      selector!.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    const cantidad = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Cantidad de la actividad']",
+    );
+    expect(cantidad).toBeTruthy();
+    const escribir = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    await act(async () => {
+      escribir.call(cantidad, "40");
+      cantidad!.dispatchEvent(new Event("input", { bubbles: true }));
+      cantidad!.blur();
+    });
+    expect(nodo.querySelector("li")?.textContent).toContain("Caminar · 40 min");
   });
 
   it("con sesión permite marcarla hecha y muestra el guion", async () => {
@@ -101,6 +171,7 @@ describe("Hoy", () => {
     await act(async () => {
       raiz.render(<Arnes inicial={inicial} />);
     });
+    expect(nodo.textContent).toContain("Actividad programada");
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
     expect(nodo.querySelectorAll("input[type='checkbox']")).toHaveLength(1);
@@ -127,6 +198,27 @@ describe("Hoy", () => {
     expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
   });
 
+  it("muestra el tiempo o las repeticiones de la actividad", async () => {
+    let inicial = aplicar(
+      estadoSemilla(),
+      {
+        tipo: "definirCuantoActividad",
+        id: ID_GYM,
+        cuanto: { valor: 45, unidad: "minutos" },
+      },
+      { hoy: HOY },
+    );
+    inicial = aplicar(
+      inicial,
+      { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(<Arnes inicial={inicial} />);
+    });
+    expect(nodo.textContent).toContain("Gym · 45 min");
+  });
+
   it("con sesión permite apuntar otro deporte además", async () => {
     const inicial = aplicar(
       estadoSemilla(),
@@ -136,9 +228,9 @@ describe("Hoy", () => {
     await act(async () => {
       raiz.render(<Arnes inicial={inicial} />);
     });
-    expect(nodo.textContent).toContain("Qué se hizo");
+    expect(nodo.textContent).toContain("Actividad extra");
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Añadir actividad"),
+      el.closest("label")?.textContent?.includes("Añadir extra"),
     );
     await act(async () => {
       selector!.value = ID_CAMINAR;

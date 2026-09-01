@@ -2,14 +2,24 @@ export type {
   Accion,
   Actividad,
   Contexto,
+  CuantoEjercicio,
   DeporteDelDia,
   Dia,
   Estado,
   IsoDate,
   LineaGuion,
   PlantillaEjercicio,
+  UnidadEjercicio,
 } from "./types";
 export { aplicar } from "./aplicar";
+export {
+  cuantoDesdeCampos,
+  etiquetaConCuanto,
+  etiquetaCuanto,
+  etiquetaTotalesCuanto,
+  lineaDesdeNombre,
+  lineaDesdePlantilla,
+} from "./lineas";
 export {
   esFechaIso,
   etiquetaFecha,

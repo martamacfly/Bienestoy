@@ -4,6 +4,7 @@ import {
   cumplimientoSemana,
   deporteDelDia,
   diaDe,
+  etiquetaCuanto,
   etiquetaFecha,
   etiquetaSemana,
   fechasDeSemana,
@@ -13,6 +14,7 @@ import {
 import { IconoHecho, TituloPantalla } from "./IconoPantalla";
 import { EditorGuion } from "./EditorGuion";
 import { SelectorActividad } from "./SelectorActividad";
+import { NombreConCuanto } from "./NombreConCuanto";
 
 function cuentaEjercicios(n: number) {
   return n === 1 ? "1 ejercicio" : `${n} ejercicios`;
@@ -117,7 +119,12 @@ export function Semana({
               </header>
               {!editando && sesion && (
                 <>
-                  <p className="ficha-subtitulo">{sesion.actividadNombre}</p>
+                  <p className="ficha-subtitulo">
+                    <NombreConCuanto
+                      nombre={sesion.actividadNombre}
+                      cuanto={sesion.cuanto}
+                    />
+                  </p>
                   {nGuion > 0 ? (
                     <ul className="lista-guion">
                       {sesion.guion.map((linea, indice) => (
@@ -126,6 +133,11 @@ export function Semana({
                           key={`${linea.nombre}-${indice}`}
                         >
                           {linea.nombre}
+                          {linea.cuanto ? (
+                            <span className="linea-guion-cuanto">
+                              {etiquetaCuanto(linea.cuanto)}
+                            </span>
+                          ) : null}
                         </li>
                       ))}
                     </ul>
@@ -136,7 +148,16 @@ export function Semana({
               )}
               {!editando && dia.extras.length > 0 && (
                 <p className="muted extra-dia">
-                  Extra: {dia.extras.map((e) => e.actividadNombre).join(", ")}
+                  Extra:{" "}
+                  {dia.extras.map((e, indice) => (
+                    <span key={`${e.actividadId}-${indice}`}>
+                      {indice > 0 ? ", " : ""}
+                      <NombreConCuanto
+                        nombre={e.actividadNombre}
+                        cuanto={e.cuanto}
+                      />
+                    </span>
+                  ))}
                 </p>
               )}
               {!editando && (
@@ -152,7 +173,12 @@ export function Semana({
               {editando && (
                 <>
                   {sesion ? (
-                    <p className="ficha-subtitulo">{sesion.actividadNombre}</p>
+                    <p className="ficha-subtitulo">
+                      <NombreConCuanto
+                        nombre={sesion.actividadNombre}
+                        cuanto={sesion.cuanto}
+                      />
+                    </p>
                   ) : (
                     <p className="vacio">Sin sesión</p>
                   )}
@@ -200,7 +226,12 @@ export function Semana({
                       <ul className="lista">
                         {dia.extras.map((extra, indice) => (
                           <li key={`${extra.actividadId}-${indice}`}>
-                            <span>{extra.actividadNombre}</span>
+                            <span>
+                              <NombreConCuanto
+                                nombre={extra.actividadNombre}
+                                cuanto={extra.cuanto}
+                              />
+                            </span>
                             <button
                               className="boton secundario"
                               onClick={() =>

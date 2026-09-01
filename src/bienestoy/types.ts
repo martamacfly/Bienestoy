@@ -1,12 +1,21 @@
 export type IsoDate = string;
 
+export type UnidadEjercicio = "repeticiones" | "segundos" | "minutos";
+
+export type CuantoEjercicio = {
+  valor: number;
+  unidad: UnidadEjercicio;
+};
+
 export type LineaGuion = {
   nombre: string;
   tachado: boolean;
+  cuanto?: CuantoEjercicio;
 };
 
 export type PlantillaEjercicio = {
   nombre: string;
+  cuanto?: CuantoEjercicio;
 };
 
 export type EstadoSesion = "pendiente" | "hecha" | "saltada";
@@ -15,12 +24,14 @@ export type Sesion = {
   actividadId: string;
   actividadNombre: string;
   estado: EstadoSesion;
+  cuanto?: CuantoEjercicio;
   guion: LineaGuion[];
 };
 
 export type Extra = {
   actividadId: string;
   actividadNombre: string;
+  cuanto?: CuantoEjercicio;
 };
 
 export type Dia = {
@@ -32,6 +43,7 @@ export type Dia = {
 export type Actividad = {
   id: string;
   nombre: string;
+  cuanto?: CuantoEjercicio;
   guionPorDefecto: PlantillaEjercicio[];
 };
 
@@ -59,11 +71,13 @@ export type Accion =
   | { tipo: "reemplazarGuion"; fecha: IsoDate; lineas: LineaGuion[] }
   | { tipo: "anadirExtra"; fecha: IsoDate; actividadId: string }
   | { tipo: "quitarExtra"; fecha: IsoDate; indice: number }
+  | { tipo: "definirCuantoExtra"; fecha: IsoDate; indice: number; cuanto?: CuantoEjercicio }
   | { tipo: "responderDeporte"; fecha: IsoDate; si: boolean }
   | { tipo: "registrarPesaje"; fecha: IsoDate; kg: number }
   | { tipo: "registrarMedida"; fecha: IsoDate; medidaId: string; valor: number }
   | { tipo: "anadirActividad"; id: string; nombre: string }
   | { tipo: "renombrarActividad"; id: string; nombre: string }
+  | { tipo: "definirCuantoActividad"; id: string; cuanto?: CuantoEjercicio }
   | { tipo: "definirGuionActividad"; id: string; lineas: PlantillaEjercicio[] }
   | { tipo: "eliminarActividad"; id: string }
   | { tipo: "copiarSemanaAnterior"; lunesDestino: IsoDate };

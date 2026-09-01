@@ -1,6 +1,8 @@
+import { useState } from "react";
 import type { Accion, Actividad, Dia, Estado, IsoDate } from "../bienestoy";
 import {
   diaDe,
+  etiquetaCuanto,
   etiquetaFecha,
   fechaAlDeslizar,
   nombreDia,
@@ -9,15 +11,16 @@ import { usarDeslizar } from "./deslizar";
 import { FlechasDeslizar } from "./FlechasDeslizar";
 import { IconoHecho, IconoPantalla, TituloPantalla } from "./IconoPantalla";
 import { SelectorActividad } from "./SelectorActividad";
+import { ContadorHiit } from "./ContadorHiit";
+import { NombreConCuanto } from "./NombreConCuanto";
+import { CamposCuantoActividad } from "./EditorGuion";
 
 function ExtrasDelDia({
-  pista,
   dia,
   fecha,
   actividades,
   dispatch,
 }: {
-  pista: string;
   dia: Dia;
   fecha: IsoDate;
   actividades: Actividad[];
@@ -25,14 +28,30 @@ function ExtrasDelDia({
 }) {
   return (
     <>
-      <h3>Qué se hizo</h3>
+      <h3>Actividad extra</h3>
       {dia.extras.length === 0 ? (
-        <p className="muted">{pista}</p>
+        <p className="muted">Si hiciste una actividad extra, apúntala.</p>
       ) : (
         <ul className="lista">
           {dia.extras.map((extra, indice) => (
             <li key={`${extra.actividadId}-${indice}`}>
-              <span>{extra.actividadNombre}</span>
+              <span>
+                <NombreConCuanto
+                  nombre={extra.actividadNombre}
+                  cuanto={extra.cuanto}
+                />
+              </span>
+              <CamposCuantoActividad
+                cuanto={extra.cuanto}
+                onCambiar={(cuanto) =>
+                  dispatch({
+                    tipo: "definirCuantoExtra",
+                    fecha,
+                    indice,
+                    cuanto,
+                  })
+                }
+              />
               <button
                 className="boton secundario"
                 onClick={() =>
@@ -47,7 +66,7 @@ function ExtrasDelDia({
       )}
       <SelectorActividad
         actividades={actividades}
-        etiqueta="Añadir actividad"
+        etiqueta="Añadir extra"
         onElegir={(actividadId) =>
           dispatch({ tipo: "anadirExtra", fecha, actividadId })
         }
@@ -69,6 +88,7 @@ export function Hoy({
   dispatch: (accion: Accion) => void;
   onVerDia: (fecha: IsoDate) => void;
 }) {
+  const [hiit, setHiit] = useState(false);
   const dia = diaDe(estado, fecha);
   const sesion = dia.sesion;
   const esHoy = fecha === hoy;
@@ -120,9 +140,12 @@ export function Hoy({
         </a>
       </header>
 
+      {hiit && <ContadorHiit onCerrar={() => setHiit(false)} />}
+
       <section className="tarjeta">
         {sesion ? (
           <>
+            <h3>Actividad programada</h3>
             <label className="marca-sesion">
               <input
                 type="checkbox"
@@ -136,7 +159,12 @@ export function Hoy({
                   })
                 }
               />
-              <h2>{sesion.actividadNombre}</h2>
+              <h2>
+                <NombreConCuanto
+                  nombre={sesion.actividadNombre}
+                  cuanto={sesion.cuanto}
+                />
+              </h2>
               {sesion.estado === "hecha" && <IconoHecho />}
             </label>
             {sesion.guion.length > 0 && (
@@ -145,6 +173,11 @@ export function Hoy({
                 {sesion.guion.map((linea, indice) => (
                   <div className="linea-guion" key={`${linea.nombre}-${indice}`}>
                     {linea.nombre}
+                    {linea.cuanto ? (
+                      <span className="linea-guion-cuanto">
+                        {etiquetaCuanto(linea.cuanto)}
+                      </span>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -157,17 +190,17 @@ export function Hoy({
           </div>
         )}
         <ExtrasDelDia
-          pista={
-            sesion
-              ? "Si hiciste otra actividad, apúntala."
-              : "Si hiciste alguna actividad, apúntala."
-          }
           dia={dia}
           fecha={fecha}
           actividades={estado.actividades}
           dispatch={dispatch}
         />
       </section>
-    </main>
+      {!hiit && (
+        <button className="boton boton-hiit" onClick={() => setHiit(true)}>
+          HIIT
+        </button>
+      )}
+      </main>
   );
 }

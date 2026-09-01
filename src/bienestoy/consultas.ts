@@ -1,5 +1,7 @@
 import { fechasDeSemana, lunesDe, sumarDias } from "./calendario";
+import { sumarCuanto, totalesVacios } from "./lineas";
 import type {
+  CuantoEjercicio,
   DeporteDelDia,
   Dia,
   Estado,
@@ -116,6 +118,9 @@ export type ActividadEnResumen = {
   saltadas: number;
   pendientes: number;
   extras: number;
+  minutos: number;
+  segundos: number;
+  repeticiones: number;
 };
 
 export function resumenActividades(
@@ -133,21 +138,36 @@ export function resumenActividades(
       saltadas: 0,
       pendientes: 0,
       extras: 0,
+      ...totalesVacios(),
     };
     mapa.set(nombre, nueva);
     return nueva;
+  }
+
+  function anotarCuanto(item: ActividadEnResumen, cuanto?: CuantoEjercicio) {
+    const totales = sumarCuanto(item, cuanto);
+    item.minutos = totales.minutos;
+    item.segundos = totales.segundos;
+    item.repeticiones = totales.repeticiones;
   }
 
   for (const [fecha, dia] of Object.entries(estado.dias)) {
     if (rango && (fecha < rango.desde || fecha > rango.hasta)) continue;
     if (dia.sesion) {
       const item = fila(dia.sesion.actividadNombre);
-      if (dia.sesion.estado === "hecha") item.hechas += 1;
-      else if (dia.sesion.estado === "saltada") item.saltadas += 1;
+      if (dia.sesion.estado === "hecha") {
+        item.hechas += 1;
+        anotarCuanto(item, dia.sesion.cuanto);
+        for (const linea of dia.sesion.guion) {
+          anotarCuanto(item, linea.cuanto);
+        }
+      } else if (dia.sesion.estado === "saltada") item.saltadas += 1;
       else item.pendientes += 1;
     }
     for (const extra of dia.extras) {
-      fila(extra.actividadNombre).extras += 1;
+      const item = fila(extra.actividadNombre);
+      item.extras += 1;
+      anotarCuanto(item, extra.cuanto);
     }
   }
 

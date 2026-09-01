@@ -136,6 +136,81 @@ describe("sesión y plan", () => {
     expect(sesion?.estado).toBe("pendiente");
   });
 
+  it("copia repeticiones o segundos del catálogo al planificar", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "definirGuionActividad",
+      id: ID_GYM,
+      lineas: [
+        { nombre: "Sentadilla", cuanto: { valor: 12, unidad: "repeticiones" } },
+        { nombre: "Plank", cuanto: { valor: 30, unidad: "segundos" } },
+      ],
+    });
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_GYM,
+    });
+    expect(diaDe(estado, MARTES).sesion?.guion).toEqual([
+      {
+        nombre: "Sentadilla",
+        tachado: false,
+        cuanto: { valor: 12, unidad: "repeticiones" },
+      },
+      {
+        nombre: "Plank",
+        tachado: false,
+        cuanto: { valor: 30, unidad: "segundos" },
+      },
+    ]);
+  });
+
+  it("copia repeticiones o tiempo de la actividad al planificar", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "definirCuantoActividad",
+      id: ID_RUNNING,
+      cuanto: { valor: 30, unidad: "minutos" },
+    });
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_RUNNING,
+    });
+    expect(diaDe(estado, MARTES).sesion?.cuanto).toEqual({
+      valor: 30,
+      unidad: "minutos",
+    });
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: MIERCOLES,
+      actividadId: ID_RUNNING,
+    });
+    expect(diaDe(estado, MIERCOLES).extras[0].cuanto).toEqual({
+      valor: 30,
+      unidad: "minutos",
+    });
+  });
+
+  it("permite poner repeticiones o tiempo en un extra", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: MARTES,
+      actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "definirCuantoExtra",
+      fecha: MARTES,
+      indice: 0,
+      cuanto: { valor: 40, unidad: "minutos" },
+    });
+    expect(diaDe(estado, MARTES).extras[0].cuanto).toEqual({
+      valor: 40,
+      unidad: "minutos",
+    });
+  });
+
   it("permite colocar o cambiar la sesión de un día pasado", () => {
     let estado = estadoSemilla();
     estado = hacer(
@@ -422,6 +497,67 @@ describe("resumen", () => {
       saltadas: 1,
     });
     expect(filas.find((f) => f.nombre === "Caminar")?.extras).toBe(1);
+  });
+
+  it("suma tiempo y repeticiones de lo hecho, no de lo pendiente", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "definirCuantoActividad",
+      id: ID_GYM,
+      cuanto: { valor: 45, unidad: "minutos" },
+    });
+    estado = hacer(estado, {
+      tipo: "definirGuionActividad",
+      id: ID_GYM,
+      lineas: [
+        { nombre: "Sentadilla", cuanto: { valor: 12, unidad: "repeticiones" } },
+      ],
+    });
+    estado = hacer(estado, {
+      tipo: "definirCuantoActividad",
+      id: ID_RUNNING,
+      cuanto: { valor: 30, unidad: "minutos" },
+    });
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: LUNES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: LUNES,
+      estado: "hecha",
+    });
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_RUNNING,
+    });
+    estado = hacer(estado, {
+      tipo: "anadirExtra",
+      fecha: MIERCOLES,
+      actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "definirCuantoExtra",
+      fecha: MIERCOLES,
+      indice: 0,
+      cuanto: { valor: 40, unidad: "minutos" },
+    });
+    const filas = resumenActividades(estado);
+    expect(filas.find((f) => f.nombre === "Gym")).toMatchObject({
+      hechas: 1,
+      minutos: 45,
+      repeticiones: 12,
+    });
+    expect(filas.find((f) => f.nombre === "Running")).toMatchObject({
+      pendientes: 1,
+      minutos: 0,
+    });
+    expect(filas.find((f) => f.nombre === "Caminar")).toMatchObject({
+      extras: 1,
+      minutos: 40,
+    });
   });
 
   it("cuenta días con extra o deporte, no solo los planificados", () => {

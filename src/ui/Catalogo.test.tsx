@@ -61,5 +61,75 @@ describe("Catálogo", () => {
     expect(
       nodo.querySelector("input[aria-label='Nombre del ejercicio']"),
     ).toBeTruthy();
+    expect(
+      nodo.querySelector("input[aria-label='Cantidad de la actividad']"),
+    ).toBeTruthy();
+    expect(
+      nodo.querySelector("select[aria-label='Unidad de la actividad']"),
+    ).toBeTruthy();
+    expect(nodo.querySelector("input[aria-label='Cantidad']")).toBeTruthy();
+    expect(nodo.querySelector("select[aria-label='Unidad']")).toBeTruthy();
+  });
+
+  it("guarda repeticiones o segundos en cada ejercicio", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    const editar = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "Editar",
+    );
+    await act(async () => {
+      editar!.click();
+    });
+    const cantidad = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Cantidad']",
+    );
+    const escribir = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    await act(async () => {
+      escribir.call(cantidad, "12");
+      cantidad!.dispatchEvent(new Event("input", { bubbles: true }));
+      cantidad!.blur();
+    });
+    const listo = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "Listo",
+    );
+    await act(async () => {
+      listo!.click();
+    });
+    expect(nodo.textContent).toContain("12 repeticiones");
+  });
+
+  it("guarda repeticiones o tiempo en la actividad", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    const editar = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "Editar",
+    );
+    await act(async () => {
+      editar!.click();
+    });
+    const cantidad = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Cantidad de la actividad']",
+    );
+    const escribir = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    await act(async () => {
+      escribir.call(cantidad, "30");
+      cantidad!.dispatchEvent(new Event("input", { bubbles: true }));
+      cantidad!.blur();
+    });
+    const listo = Array.from(nodo.querySelectorAll("button")).find(
+      (b) => b.textContent === "Listo",
+    );
+    await act(async () => {
+      listo!.click();
+    });
+    expect(nodo.textContent).toContain("Gym · 30 min");
   });
 });

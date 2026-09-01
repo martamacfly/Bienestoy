@@ -2,7 +2,11 @@ import { useRef, type PointerEvent } from "react";
 
 function esControl(objetivo: EventTarget | null): boolean {
   if (!(objetivo instanceof Element)) return false;
-  return Boolean(objetivo.closest("button, a, input, select, label, textarea"));
+  return Boolean(
+    objetivo.closest(
+      "button, a, input, select, label, textarea, .contador-hiit",
+    ),
+  );
 }
 
 export function usarDeslizar(
