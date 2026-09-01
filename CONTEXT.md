@@ -14,7 +14,7 @@ La pieza planificada del día: una actividad y, cuando aplica, un guion. Como m�
 _Avoid_: hábito, entrada, log, entrenamiento, extra
 
 **Extra**:
-Una actividad del catálogo hecha ese día que no es la sesión del plan. Sin guion. No cuenta para cumplir la semana. Si hay sesión planificada, no toca el deporte del día. Si el día está vacío, tener un extra implica deporte sí.
+Una actividad del catálogo hecha ese día que no es la sesión del plan. Sin guion. No cuenta para cumplir la semana. En Hoy se apunta siempre, haya sesión o no. Si el día está vacío, tener un extra implica deporte sí y muestra el check.
 _Avoid_: sesión, segunda sesión, nota de texto
 
 **Guion**:
@@ -30,17 +30,21 @@ Un movimiento concreto que vive dentro de una actividad, no en un pool global. E
 _Avoid_: actividad, deporte, catálogo global
 
 **Día**:
-Un día del calendario. Puede tener sesiones o estar vacío. El sí/no de deporte de ese día es el mismo hecho que el cumplimiento de la sesión cuando hay sesión.
+Un día del calendario. Puede tener una sesión o estar vacío. Un día vacío es día de descanso en el plan.
 _Avoid_: hábito, racha
 
+**Día de descanso**:
+Un día sin sesión en el plan. En Hoy se nombra así. No se pregunta sí/no; si se hizo una actividad, se apunta como extra y aparece el check.
+_Avoid_: off, rest como actividad del catálogo, sí/no de deporte
+
 **Deporte del día**:
-Si hay sesión: hecha implica sí; si no está marcada, el deporte del día queda sin marcar. Si el día está vacío, se pregunta sí o no; si es sí, se puede apuntar qué actividad del catálogo se hizo (un extra). Un extra en día vacío implica sí. Nunca se marca dos veces.
-_Avoid_: diario paralelo, hábito diario, segundo canal
+Si hay sesión: hecha implica sí; si no está marcada, queda sin marcar. Si el día está vacío: un extra implica sí; sin extra es descanso y no se pregunta. Un extra no cambia el sí/no si ya hay sesión.
+_Avoid_: diario paralelo, hábito diario, segundo canal, botones sí/no
 
 **Pesaje**:
 El registro del peso en un día. Como máximo uno por día; si se repite, sustituye. No hay objetivo ni IMC.
 _Avoid_: meta de peso, composición corporal
 
 **Medida**:
-Una cifra corporal simple además del peso. Catálogo con semilla (cintura) y editable. El peso no es una medida más: es un pesaje. Como máximo un valor por medida y día; si se repite, sustituye. Sin fotos ni objetivos.
-_Avoid_: foto de progreso, métrica de gym, objetivo, IMC
+Una cifra corporal fija además del peso: cintura, brazo y cadera, en cm. No se añaden ni se quitan. El peso no es una medida más: es un pesaje. Como máximo un valor por medida y día; si se repite, sustituye. Sin fotos ni objetivos.
+_Avoid_: foto de progreso, métrica de gym, objetivo, IMC, catálogo editable de medidas

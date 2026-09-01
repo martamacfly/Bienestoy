@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { aplicar } from "./aplicar";
 import { fechaAlDeslizar, lunesAlDeslizar, lunesDe } from "./calendario";
-import { inferirDibujo } from "./dibujos";
 import { normalizarEstado } from "./normalizar";
 import { cumplimientoSemana, deporteDelDia, diaDe, diasSemana, historialDias, historialSemanas, resumenActividades, resumenDeporte, serieMedida } from "./consultas";
 import { exportarJSON, importarJSON } from "./exportar";
@@ -135,20 +134,6 @@ describe("sesión y plan", () => {
     expect(sesion?.actividadId).toBe(ID_RUNNING);
     expect(sesion?.guion).toEqual([]);
     expect(sesion?.estado).toBe("pendiente");
-  });
-
-  it("copia el dibujito de cada ejercicio al colocar la sesión", () => {
-    let estado = estadoSemilla();
-    estado = hacer(estado, {
-      tipo: "colocarSesion",
-      fecha: MARTES,
-      actividadId: ID_GYM,
-    });
-    expect(diaDe(estado, MARTES).sesion?.guion.map((l) => l.dibujo)).toEqual([
-      "sentadilla",
-      "press",
-      "plank",
-    ]);
   });
 
   it("permite colocar o cambiar la sesión de un día pasado", () => {
@@ -304,7 +289,7 @@ describe("copiar semana anterior", () => {
     expect(copia?.actividadId).toBe(ID_GYM);
     expect(copia?.estado).toBe("pendiente");
     expect(copia?.guion[0]?.tachado).toBe(false);
-    expect(copia?.guion[0]?.dibujo).toBe("sentadilla");
+    expect(copia?.guion[0]?.nombre).toBe("Sentadilla");
     expect(diaDe(estado, martesSiguiente).extras).toEqual([]);
     expect(estado.pesajes[martesSiguiente]).toBeUndefined();
     expect(diaDe(estado, MARTES).sesion?.estado).toBe("hecha");
@@ -352,6 +337,32 @@ describe("cuerpo", () => {
     expect(serieMedida(estado, ID_CINTURA)).toEqual([
       { fecha: LUNES, valor: 70 },
       { fecha: MARTES, valor: 69.5 },
+    ]);
+  });
+
+  it("las medidas son fijas: cintura, brazo y cadera", () => {
+    const estado = estadoSemilla();
+    expect(estado.medidas.map((m) => m.nombre)).toEqual([
+      "Cintura",
+      "Brazo",
+      "Cadera",
+    ]);
+    const siguiente = hacer(estado, {
+      tipo: "registrarMedida",
+      fecha: MARTES,
+      medidaId: "med-inventada",
+      valor: 10,
+    });
+    expect(siguiente.valoresMedida[MARTES]).toBeUndefined();
+  });
+
+  it("al cargar un estado viejo deja las medidas fijas", () => {
+    const bruto = estadoSemilla();
+    bruto.medidas = [{ id: "otra", nombre: "Cuello", unidad: "cm" }];
+    expect(normalizarEstado(bruto).medidas.map((m) => m.nombre)).toEqual([
+      "Cintura",
+      "Brazo",
+      "Cadera",
     ]);
   });
 });
@@ -525,28 +536,17 @@ describe("resumen", () => {
   });
 });
 
-describe("dibujos", () => {
-  it("infiere el dibujo por el nombre del ejercicio", () => {
-    expect(inferirDibujo("Zancadas")).toBe("zancada");
-    expect(inferirDibujo("plancha")).toBe("plank");
-    expect(inferirDibujo("flexiones")).toBe("flexion");
-    expect(inferirDibujo("zumba")).toBe("baile");
-    expect(inferirDibujo("peso muerto")).toBe("muerto");
-    expect(inferirDibujo("fondos")).toBe("fondos");
-    expect(inferirDibujo("pilates")).toBe("pilates");
-    expect(inferirDibujo("jumping jack")).toBe("jumpingjack");
-  });
-
-  it("normaliza un guion antiguo de solo texto", () => {
+describe("guion", () => {
+  it("normaliza un guion antiguo de solo texto o con dibujo", () => {
     const bruto = estadoSemilla();
     bruto.actividades[0] = {
       ...bruto.actividades[0],
-      guionPorDefecto: ["Sentadilla"] as never,
+      guionPorDefecto: ["Sentadilla", { nombre: "Press", dibujo: "press" }] as never,
     };
     const estado = normalizarEstado(bruto);
-    expect(estado.actividades[0]?.guionPorDefecto[0]).toEqual({
-      nombre: "Sentadilla",
-      dibujo: "sentadilla",
-    });
+    expect(estado.actividades[0]?.guionPorDefecto).toEqual([
+      { nombre: "Sentadilla" },
+      { nombre: "Press" },
+    ]);
   });
 });

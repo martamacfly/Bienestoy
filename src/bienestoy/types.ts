@@ -1,17 +1,12 @@
-export type { DibujoId } from "./dibujos";
-import type { DibujoId } from "./dibujos";
-
 export type IsoDate = string;
 
 export type LineaGuion = {
   nombre: string;
-  dibujo: DibujoId;
   tachado: boolean;
 };
 
 export type PlantillaEjercicio = {
   nombre: string;
-  dibujo: DibujoId;
 };
 
 export type EstadoSesion = "pendiente" | "hecha" | "saltada";
@@ -71,9 +66,6 @@ export type Accion =
   | { tipo: "renombrarActividad"; id: string; nombre: string }
   | { tipo: "definirGuionActividad"; id: string; lineas: PlantillaEjercicio[] }
   | { tipo: "eliminarActividad"; id: string }
-  | { tipo: "anadirMedida"; id: string; nombre: string; unidad: string }
-  | { tipo: "renombrarMedida"; id: string; nombre: string }
-  | { tipo: "eliminarMedida"; id: string }
   | { tipo: "copiarSemanaAnterior"; lunesDestino: IsoDate };
 
 export type Contexto = {

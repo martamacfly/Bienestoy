@@ -1,4 +1,3 @@
-import { esDibujoId, inferirDibujo } from "./dibujos";
 import type {
   Actividad,
   Dia,
@@ -6,20 +5,18 @@ import type {
   LineaGuion,
   PlantillaEjercicio,
 } from "./types";
+import { medidasFijas } from "./seed";
 
 function plantilla(bruto: unknown): PlantillaEjercicio | null {
   if (typeof bruto === "string") {
     const nombre = bruto.trim();
     if (!nombre) return null;
-    return { nombre, dibujo: inferirDibujo(nombre) };
+    return { nombre };
   }
   if (typeof bruto !== "object" || bruto === null) return null;
   const fila = bruto as Record<string, unknown>;
   if (typeof fila.nombre !== "string" || !fila.nombre.trim()) return null;
-  return {
-    nombre: fila.nombre.trim(),
-    dibujo: esDibujoId(fila.dibujo) ? fila.dibujo : inferirDibujo(fila.nombre),
-  };
+  return { nombre: fila.nombre.trim() };
 }
 
 function lineaGuion(bruto: unknown): LineaGuion | null {
@@ -41,6 +38,7 @@ export function normalizarEstado(bruto: Estado): Estado {
         .map(plantilla)
         .filter((linea): linea is PlantillaEjercicio => linea !== null),
     })),
+    medidas: medidasFijas.map((m) => ({ ...m })),
     dias: Object.fromEntries(
       Object.entries(bruto.dias).map(([fecha, dia]) => {
         const sesion = dia.sesion

@@ -56,39 +56,40 @@ describe("Hoy", () => {
     nodo.remove();
   });
 
-  it("sin sesión solo pregunta si hubo deporte, no planifica", async () => {
+  it("sin sesión es día de descanso y deja apuntar lo que se hizo", async () => {
     await act(async () => {
       raiz.render(<Arnes />);
     });
-    expect(nodo.textContent).toContain("Sin sesión planificada");
-    expect(nodo.textContent).toContain("El plan se edita en Semana");
+    expect(nodo.textContent).toContain("Día de descanso");
+    expect(nodo.textContent).toContain("Qué se hizo");
+    expect(nodo.textContent).toContain("Añadir actividad");
+    expect(nodo.textContent).not.toContain("Sin sesión planificada");
+    expect(
+      Array.from(nodo.querySelectorAll("button")).find(
+        (b) => b.textContent === "Sí" || b.textContent === "No",
+      ),
+    ).toBeUndefined();
     expect(
       Array.from(nodo.querySelectorAll("select")).find((el) =>
         el.closest("label")?.textContent?.includes("Planificar"),
       ),
     ).toBeUndefined();
-    expect(nodo.textContent).not.toContain("Añadir actividad");
+    expect(nodo.querySelector(".icono-hecho")).toBeNull();
   });
 
-  it("tras marcar sí deja apuntar qué actividad se hizo", async () => {
+  it("al apuntar una actividad en día de descanso muestra el check", async () => {
     await act(async () => {
       raiz.render(<Arnes />);
-    });
-    const si = Array.from(nodo.querySelectorAll("button")).find(
-      (b) => b.textContent === "Sí",
-    );
-    await act(async () => {
-      si!.click();
     });
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
       el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
-    expect(selector).toBeTruthy();
     await act(async () => {
       selector!.value = ID_CAMINAR;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
     expect(nodo.querySelector("li")?.textContent).toContain("Caminar");
+    expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
   });
 
   it("con sesión permite marcarla hecha y muestra el guion", async () => {
@@ -135,7 +136,7 @@ describe("Hoy", () => {
     await act(async () => {
       raiz.render(<Arnes inicial={inicial} />);
     });
-    expect(nodo.textContent).toContain("Además");
+    expect(nodo.textContent).toContain("Qué se hizo");
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
       el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
@@ -225,5 +226,27 @@ describe("Hoy", () => {
       );
     });
     expect(visto).toBe("");
+  });
+
+  it("enseña flecha atrás y no adelante cuando es hoy", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    expect(nodo.querySelector("button[aria-label='Día anterior']")).toBeTruthy();
+    expect(nodo.querySelector("button[aria-label='Día siguiente']")).toBeNull();
+  });
+
+  it("la flecha adelante vuelve hacia hoy desde un día pasado", async () => {
+    let visto = "";
+    await act(async () => {
+      raiz.render(
+        <Arnes fecha="2026-08-23" onVerDia={(fecha) => { visto = fecha; }} />,
+      );
+    });
+    expect(nodo.querySelector("button[aria-label='Día siguiente']")).toBeTruthy();
+    await act(async () => {
+      nodo.querySelector<HTMLButtonElement>("button[aria-label='Día siguiente']")!.click();
+    });
+    expect(visto).toBe(HOY);
   });
 });

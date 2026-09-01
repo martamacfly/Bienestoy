@@ -1,6 +1,7 @@
 import { fechasDeSemana, lunesDe, sumarDias } from "./calendario";
 import { diaDe } from "./consultas";
 import { lineaDesdeNombre } from "./lineas";
+import { medidasFijas } from "./seed";
 import type {
   Accion,
   Actividad,
@@ -39,7 +40,6 @@ function sesionDesdeActividad(actividad: Actividad): Sesion {
     estado: "pendiente",
     guion: actividad.guionPorDefecto.map((linea) => ({
       nombre: linea.nombre,
-      dibujo: linea.dibujo,
       tachado: false,
     })),
   };
@@ -110,7 +110,7 @@ function tacharGuion(
 function reemplazarGuion(
   estado: Estado,
   fecha: IsoDate,
-  lineas: { nombre: string; dibujo: import("./dibujos").DibujoId; tachado?: boolean }[],
+  lineas: { nombre: string; tachado?: boolean }[],
 ): Estado {
   const dia = diaDe(estado, fecha);
   if (!dia.sesion) return estado;
@@ -120,7 +120,7 @@ function reemplazarGuion(
       ...dia.sesion,
       guion: lineas
         .map((linea) => ({
-          ...lineaDesdeNombre(linea.nombre, linea.dibujo),
+          ...lineaDesdeNombre(linea.nombre),
           tachado: linea.tachado === true,
         }))
         .filter((linea) => linea.nombre),
@@ -182,7 +182,6 @@ function copiarSemanaAnterior(
           estado: "pendiente" as const,
           guion: origenDia.sesion.guion.map((linea) => ({
             nombre: linea.nombre,
-            dibujo: linea.dibujo,
             tachado: false,
           })),
         }
@@ -228,7 +227,7 @@ export function aplicar(
       siguiente.pesajes[accion.fecha] = accion.kg;
       return siguiente;
     case "registrarMedida":
-      if (!siguiente.medidas.some((m) => m.id === accion.medidaId)) {
+      if (!medidasFijas.some((m) => m.id === accion.medidaId)) {
         return estado;
       }
       siguiente.valoresMedida[accion.fecha] = {
@@ -254,10 +253,7 @@ export function aplicar(
       const act = actividadPorId(siguiente, accion.id);
       if (!act) return estado;
       act.guionPorDefecto = accion.lineas
-        .map((linea) => {
-          const hecha = lineaDesdeNombre(linea.nombre, linea.dibujo);
-          return { nombre: hecha.nombre, dibujo: hecha.dibujo };
-        })
+        .map((linea) => ({ nombre: lineaDesdeNombre(linea.nombre).nombre }))
         .filter((linea) => linea.nombre);
       return siguiente;
     }
@@ -265,23 +261,6 @@ export function aplicar(
       siguiente.actividades = siguiente.actividades.filter(
         (a) => a.id !== accion.id,
       );
-      return siguiente;
-    case "anadirMedida":
-      if (siguiente.medidas.some((m) => m.id === accion.id)) return estado;
-      siguiente.medidas.push({
-        id: accion.id,
-        nombre: accion.nombre.trim(),
-        unidad: accion.unidad.trim() || "cm",
-      });
-      return siguiente;
-    case "renombrarMedida": {
-      const med = siguiente.medidas.find((m) => m.id === accion.id);
-      if (!med) return estado;
-      med.nombre = accion.nombre.trim();
-      return siguiente;
-    }
-    case "eliminarMedida":
-      siguiente.medidas = siguiente.medidas.filter((m) => m.id !== accion.id);
       return siguiente;
     case "copiarSemanaAnterior":
       return copiarSemanaAnterior(siguiente, accion.lunesDestino);

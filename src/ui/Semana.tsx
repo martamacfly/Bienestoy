@@ -14,6 +14,10 @@ import { IconoHecho, TituloPantalla } from "./IconoPantalla";
 import { EditorGuion } from "./EditorGuion";
 import { SelectorActividad } from "./SelectorActividad";
 
+function cuentaEjercicios(n: number) {
+  return n === 1 ? "1 ejercicio" : `${n} ejercicios`;
+}
+
 export function Semana({
   estado,
   hoy,
@@ -39,7 +43,7 @@ export function Semana({
   }, [lunes]);
 
   return (
-    <main>
+    <main className="semana">
       <header className="marca">
         <div>
           <TituloPantalla ruta="semana">Semana</TituloPantalla>
@@ -83,69 +87,75 @@ export function Semana({
         )}
       </div>
 
-      <section className="tarjeta">
+      <section className="lista-fichas">
         {dias.map((fecha) => {
           const dia = diaDe(estado, fecha);
           const sesion = dia.sesion;
+          const nGuion = sesion?.guion.length ?? 0;
+          const hecho =
+            sesion?.estado === "hecha" ||
+            (!sesion && deporteDelDia(estado, fecha) === "si");
           return (
-            <div className="dia-semana" key={fecha}>
-              <div>
+            <article className="ficha" key={fecha}>
+              <header className="ficha-cabecera">
                 <button
                   type="button"
                   className="enlace-dia"
                   onClick={() => onVerDia(fecha)}
                 >
-                  <strong>
+                  <h2>
                     {etiquetaFecha(fecha)}
                     {fecha === hoy ? " · hoy" : ""}
-                  </strong>
+                  </h2>
                 </button>
-                {sesion ? (
-                  <>
-                    <p style={{ margin: "0.2rem 0 0" }}>
-                      {sesion.actividadNombre}
-                    </p>
-                    {sesion.guion.length > 0 && (
-                      <p className="muted" style={{ margin: "0.15rem 0 0" }}>
-                        {sesion.guion.map((linea) => linea.nombre).join(" · ")}
-                      </p>
-                    )}
-                  </>
-                ) : editando ? (
-                  <p className="vacio" style={{ margin: "0.2rem 0 0" }}>
-                    Sin sesión
-                  </p>
-                ) : null}
-                {dia.extras.length > 0 && (
-                  <p className="muted" style={{ margin: "0.15rem 0 0" }}>
-                    Extra: {dia.extras.map((e) => e.actividadNombre).join(", ")}
-                  </p>
-                )}
-              </div>
-              <div className="fila" style={{ justifyContent: "flex-end" }}>
-                {(sesion?.estado === "hecha" ||
-                  (!sesion && deporteDelDia(estado, fecha) === "si")) && (
-                  <IconoHecho />
-                )}
-                {!editando && (
+                <div className="ficha-cabecera-meta">
+                  {!editando && nGuion > 0 && (
+                    <p className="ficha-cuenta">{cuentaEjercicios(nGuion)}</p>
+                  )}
+                  {hecho && <IconoHecho />}
+                </div>
+              </header>
+              {!editando && sesion && (
+                <>
+                  <p className="ficha-subtitulo">{sesion.actividadNombre}</p>
+                  {nGuion > 0 ? (
+                    <ul className="lista-guion">
+                      {sesion.guion.map((linea, indice) => (
+                        <li
+                          className="linea-guion"
+                          key={`${linea.nombre}-${indice}`}
+                        >
+                          {linea.nombre}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="vacio">Sin ejercicios</p>
+                  )}
+                </>
+              )}
+              {!editando && dia.extras.length > 0 && (
+                <p className="muted extra-dia">
+                  Extra: {dia.extras.map((e) => e.actividadNombre).join(", ")}
+                </p>
+              )}
+              {!editando && (
+                <div className="ficha-pie">
                   <button
                     className="boton secundario"
                     onClick={() => onVerDia(fecha)}
                   >
                     Apuntar
                   </button>
-                )}
-                {editando && sesion && (
-                  <button
-                    className="boton secundario"
-                    onClick={() => dispatch({ tipo: "quitarSesion", fecha })}
-                  >
-                    Quitar
-                  </button>
-                )}
-              </div>
+                </div>
+              )}
               {editando && (
                 <>
+                  {sesion ? (
+                    <p className="ficha-subtitulo">{sesion.actividadNombre}</p>
+                  ) : (
+                    <p className="vacio">Sin sesión</p>
+                  )}
                   <SelectorActividad
                     actividades={estado.actividades}
                     etiqueta={sesion ? "Cambiar" : "Planificar"}
@@ -169,6 +179,14 @@ export function Semana({
                           dispatch({ tipo: "reemplazarGuion", fecha, lineas })
                         }
                       />
+                      <button
+                        className="boton secundario"
+                        onClick={() =>
+                          dispatch({ tipo: "quitarSesion", fecha })
+                        }
+                      >
+                        Quitar
+                      </button>
                     </div>
                   )}
                   <details className="detalle-dia">
@@ -213,7 +231,7 @@ export function Semana({
                   </details>
                 </>
               )}
-            </div>
+            </article>
           );
         })}
       </section>

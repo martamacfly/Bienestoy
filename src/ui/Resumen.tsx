@@ -13,6 +13,7 @@ import {
   type IsoDate,
 } from "../bienestoy";
 import { usarDeslizar } from "./deslizar";
+import { FlechasDeslizar } from "./FlechasDeslizar";
 import { Barras, BarrasActividades, Leyenda, Linea, Tarta } from "./graficas";
 import { TituloPantalla } from "./IconoPantalla";
 
@@ -67,16 +68,35 @@ export function Resumen({
     const siguiente = lunesAlDeslizar(lunes, hoy, direccion);
     if (siguiente) onVerSemana(siguiente);
   });
+  const semanaAnterior = lunesAlDeslizar(lunes, hoy, "anterior");
+  const semanaSiguiente = lunesAlDeslizar(lunes, hoy, "siguiente");
 
   return (
     <main {...deslizar}>
       <header className="marca">
         <div>
           <TituloPantalla ruta="resumen">Resumen</TituloPantalla>
-          <p>
+          <FlechasDeslizar
+            anterior={
+              semanaAnterior
+                ? {
+                    etiqueta: "Semana anterior",
+                    ir: () => onVerSemana(semanaAnterior),
+                  }
+                : undefined
+            }
+            siguiente={
+              semanaSiguiente
+                ? {
+                    etiqueta: "Semana siguiente",
+                    ir: () => onVerSemana(semanaSiguiente),
+                  }
+                : undefined
+            }
+          >
             {etiquetaSemana(lunes)}
             {esta ? " · esta" : ""}
-          </p>
+          </FlechasDeslizar>
         </div>
       </header>
 

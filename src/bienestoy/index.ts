@@ -9,8 +9,6 @@ export type {
   LineaGuion,
   PlantillaEjercicio,
 } from "./types";
-export { DIBUJOS, etiquetaDibujo, inferirDibujo } from "./dibujos";
-export type { DibujoId } from "./dibujos";
 export { aplicar } from "./aplicar";
 export {
   esFechaIso,
@@ -39,10 +37,13 @@ export {
 } from "./consultas";
 export { exportarJSON, importarJSON } from "./exportar";
 export {
+  ID_BRAZO,
+  ID_CADERA,
   ID_CAMINAR,
   ID_CINTURA,
   ID_GYM,
   ID_RUNNING,
   ID_YOGA,
   estadoSemilla,
+  medidasFijas,
 } from "./seed";

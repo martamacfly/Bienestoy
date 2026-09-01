@@ -42,6 +42,10 @@ describe("Catálogo", () => {
     });
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
+    expect(nodo.textContent).toContain("ejercicios");
+    expect(nodo.textContent).not.toContain("Sentadilla · Press");
+    expect(nodo.querySelectorAll(".ficha").length).toBeGreaterThanOrEqual(2);
+    expect(nodo.querySelectorAll(".lista-guion .linea-guion").length).toBeGreaterThanOrEqual(3);
     expect(nodo.textContent).toContain("Editar");
     expect(nodo.textContent).not.toContain("Añadir ejercicio");
     expect(nodo.textContent).not.toContain("Añadir actividad");

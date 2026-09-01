@@ -61,21 +61,36 @@ export function Linea({
 }) {
   if (puntos.length === 0) return null;
   const ancho = 280;
-  const alto = 100;
-  const pad = 16;
-  const xs = puntos.map((_, i) =>
-    puntos.length === 1
+  const alto = 118;
+  const padX = 18;
+  const padTop = 18;
+  const padBottom = 26;
+  const serie = [...puntos].sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const times = serie.map((p) => Date.parse(p.fecha));
+  const tMin = Math.min(...times);
+  const tMax = Math.max(...times);
+  const tSpan = tMax - tMin || 1;
+  const xs = times.map((t) =>
+    serie.length === 1
       ? ancho / 2
-      : pad + (i / (puntos.length - 1)) * (ancho - pad * 2),
+      : padX + ((t - tMin) / tSpan) * (ancho - padX * 2),
   );
-  const nums = puntos.map((p) => p.valor);
+  const nums = serie.map((p) => p.valor);
   const min = Math.min(...nums);
   const max = Math.max(...nums);
   const span = max - min || 1;
   const ys = nums.map(
-    (n) => alto - pad - ((n - min) / span) * (alto - pad * 2),
+    (n) => padTop + ((max - n) / span) * (alto - padTop - padBottom),
   );
   const d = xs.map((x, i) => `${i === 0 ? "M" : "L"}${x},${ys[i]}`).join(" ");
+
+  function corta(fecha: IsoDate) {
+    const [, mes, dia] = fecha.split("-");
+    return `${Number(dia)}/${Number(mes)}`;
+  }
+
+  const indicesEtiqueta =
+    serie.length <= 6 ? serie.map((_, i) => i) : [0, serie.length - 1];
 
   return (
     <svg
@@ -84,16 +99,53 @@ export function Linea({
       aria-label={`Evolución en ${unidad}`}
       className="grafica"
     >
-      <path d={d} fill="none" stroke="var(--naranja)" strokeWidth="2.5" />
+      <path
+        d={d}
+        fill="none"
+        stroke="var(--naranja)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       {xs.map((x, i) => (
-        <circle key={puntos[i].fecha} cx={x} cy={ys[i]} r="3.5" fill="var(--naranja)" />
+        <circle
+          key={serie[i].fecha}
+          cx={x}
+          cy={ys[i]}
+          r="4"
+          fill="var(--naranja)"
+        />
       ))}
-      <text x={pad} y={12} fontSize="10" fill="var(--tinta-suave)">
+      <text
+        x={ancho - padX}
+        y={12}
+        textAnchor="end"
+        fontSize="10"
+        fill="var(--tinta-suave)"
+      >
         {max} {unidad}
       </text>
-      <text x={pad} y={alto - 4} fontSize="10" fill="var(--tinta-suave)">
+      <text
+        x={ancho - padX}
+        y={alto - padBottom - 2}
+        textAnchor="end"
+        fontSize="10"
+        fill="var(--tinta-suave)"
+      >
         {min} {unidad}
       </text>
+      {indicesEtiqueta.map((i) => (
+        <text
+          key={serie[i].fecha}
+          x={xs[i]}
+          y={alto - 6}
+          textAnchor="middle"
+          fontSize="9"
+          fill="var(--tinta-suave)"
+        >
+          {corta(serie[i].fecha)}
+        </text>
+      ))}
     </svg>
   );
 }

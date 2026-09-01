@@ -66,6 +66,54 @@ describe("Cuerpo", () => {
       guardar!.click();
     });
     expect(nodo.textContent).toContain("62.3");
-    expect(nodo.textContent).toContain(AYER);
+    const grafica = nodo.querySelector("svg[aria-label='Evolución en kg']");
+    expect(grafica).toBeTruthy();
+    expect(grafica?.querySelectorAll("circle")).toHaveLength(1);
+    expect(nodo.querySelector("path")).toBeTruthy();
+  });
+
+  it("muestra peso, cintura, brazo y cadera y no deja cambiar las medidas", async () => {
+    await act(async () => {
+      raiz.render(<Arnes />);
+    });
+    expect(nodo.textContent).toContain("Peso (kg)");
+    expect(nodo.textContent).toContain("Cintura (cm)");
+    expect(nodo.textContent).toContain("Brazo (cm)");
+    expect(nodo.textContent).toContain("Cadera (cm)");
+    expect(nodo.textContent).not.toContain("Añadir medida");
+    expect(nodo.textContent).not.toContain("Nueva medida");
+    expect(
+      Array.from(nodo.querySelectorAll("button")).find(
+        (b) => b.textContent === "Quitar",
+      ),
+    ).toBeUndefined();
+  });
+
+  it("une los pesajes en una gráfica de puntos", async () => {
+    let estado = estadoSemilla();
+    estado = aplicar(
+      estado,
+      { tipo: "registrarPesaje", fecha: AYER, kg: 62 },
+      { hoy: HOY },
+    );
+    estado = aplicar(
+      estado,
+      { tipo: "registrarPesaje", fecha: HOY, kg: 61.5 },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(
+        <Cuerpo
+          estado={estado}
+          fecha={HOY}
+          hoy={HOY}
+          dispatch={() => undefined}
+        />,
+      );
+    });
+    const grafica = nodo.querySelector("svg[aria-label='Evolución en kg']");
+    expect(grafica?.querySelectorAll("circle")).toHaveLength(2);
+    expect(grafica?.querySelector("path")?.getAttribute("d")).toMatch(/^M.+ L/);
+    expect(nodo.querySelectorAll(".lista li").length).toBe(0);
   });
 });

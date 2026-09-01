@@ -1,16 +1,8 @@
-import type { DibujoId } from "./dibujos";
 import type { LineaGuion } from "./types";
-import { inferirDibujo } from "./dibujos";
 
-export function lineaDesdeNombre(
-  nombre: string,
-  dibujo?: DibujoId,
-): LineaGuion {
-  const limpio = nombre.trim();
+export function lineaDesdeNombre(nombre: string): LineaGuion {
   return {
-    nombre: limpio,
-    dibujo: dibujo ?? inferirDibujo(limpio),
+    nombre: nombre.trim(),
     tachado: false,
   };
 }
-

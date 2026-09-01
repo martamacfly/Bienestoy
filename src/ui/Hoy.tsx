@@ -1,25 +1,22 @@
 import type { Accion, Actividad, Dia, Estado, IsoDate } from "../bienestoy";
 import {
-  deporteDelDia,
   diaDe,
   etiquetaFecha,
   fechaAlDeslizar,
   nombreDia,
 } from "../bienestoy";
 import { usarDeslizar } from "./deslizar";
-import { Dibujo } from "./Dibujo";
+import { FlechasDeslizar } from "./FlechasDeslizar";
 import { IconoHecho, IconoPantalla, TituloPantalla } from "./IconoPantalla";
 import { SelectorActividad } from "./SelectorActividad";
 
 function ExtrasDelDia({
-  titulo,
   pista,
   dia,
   fecha,
   actividades,
   dispatch,
 }: {
-  titulo: string;
   pista: string;
   dia: Dia;
   fecha: IsoDate;
@@ -28,7 +25,7 @@ function ExtrasDelDia({
 }) {
   return (
     <>
-      <h3>{titulo}</h3>
+      <h3>Qué se hizo</h3>
       {dia.extras.length === 0 ? (
         <p className="muted">{pista}</p>
       ) : (
@@ -73,9 +70,10 @@ export function Hoy({
   onVerDia: (fecha: IsoDate) => void;
 }) {
   const dia = diaDe(estado, fecha);
-  const deporte = deporteDelDia(estado, fecha);
   const sesion = dia.sesion;
   const esHoy = fecha === hoy;
+  const diaAnterior = fechaAlDeslizar(fecha, hoy, "anterior");
+  const diaSiguiente = fechaAlDeslizar(fecha, hoy, "siguiente");
   const deslizar = usarDeslizar((direccion) => {
     const siguiente = fechaAlDeslizar(fecha, hoy, direccion);
     if (siguiente) onVerDia(siguiente);
@@ -92,7 +90,26 @@ export function Hoy({
                   letra.toUpperCase(),
                 )}
           </TituloPantalla>
-          <p>{etiquetaFecha(fecha)}</p>
+          <FlechasDeslizar
+            anterior={
+              diaAnterior
+                ? {
+                    etiqueta: "Día anterior",
+                    ir: () => onVerDia(diaAnterior),
+                  }
+                : undefined
+            }
+            siguiente={
+              diaSiguiente
+                ? {
+                    etiqueta: "Día siguiente",
+                    ir: () => onVerDia(diaSiguiente),
+                  }
+                : undefined
+            }
+          >
+            {etiquetaFecha(fecha)}
+          </FlechasDeslizar>
         </div>
         <a
           href={fecha === hoy ? "#/cuerpo" : `#/cuerpo/${fecha}`}
@@ -127,88 +144,29 @@ export function Hoy({
                 <h3>Guion</h3>
                 {sesion.guion.map((linea, indice) => (
                   <div className="linea-guion" key={`${linea.nombre}-${indice}`}>
-                    <Dibujo id={linea.dibujo} />
                     {linea.nombre}
                   </div>
                 ))}
               </div>
             )}
-            <ExtrasDelDia
-              titulo="Además"
-              pista="Si hiciste otro deporte, apúntalo."
-              dia={dia}
-              fecha={fecha}
-              actividades={estado.actividades}
-              dispatch={dispatch}
-            />
           </>
         ) : (
-          <>
-            <h2>Sin sesión planificada</h2>
-            <p className="muted">
-              El plan se edita en Semana. ¿Hubo deporte igual?
-            </p>
-            {dia.extras.length === 0 && (
-              <div className="fila">
-                <button
-                  className="boton"
-                  onClick={() =>
-                    dispatch({
-                      tipo: "responderDeporte",
-                      fecha,
-                      si: true,
-                    })
-                  }
-                >
-                  Sí
-                </button>
-                <button
-                  className="boton secundario"
-                  onClick={() =>
-                    dispatch({
-                      tipo: "responderDeporte",
-                      fecha,
-                      si: false,
-                    })
-                  }
-                >
-                  No
-                </button>
-              </div>
-            )}
-            <p className="fila-hecho">
-              <span>
-                Deporte del día:{" "}
-                <span
-                  className={
-                    deporte === "si"
-                      ? "estado-si"
-                      : deporte === "no"
-                        ? "estado-no"
-                        : "muted"
-                  }
-                >
-                  {deporte === "si"
-                    ? "sí"
-                    : deporte === "no"
-                      ? "no"
-                      : "sin marcar"}
-                </span>
-              </span>
-              {deporte === "si" && <IconoHecho />}
-            </p>
-            {deporte === "si" && (
-              <ExtrasDelDia
-                titulo="Qué se hizo"
-                pista="Puedes apuntar la actividad."
-                dia={dia}
-                fecha={fecha}
-                actividades={estado.actividades}
-                dispatch={dispatch}
-              />
-            )}
-          </>
+          <div className="fila-hecho">
+            <h2>Día de descanso</h2>
+            {dia.extras.length > 0 && <IconoHecho />}
+          </div>
         )}
+        <ExtrasDelDia
+          pista={
+            sesion
+              ? "Si hiciste otra actividad, apúntala."
+              : "Si hiciste alguna actividad, apúntala."
+          }
+          dia={dia}
+          fecha={fecha}
+          actividades={estado.actividades}
+          dispatch={dispatch}
+        />
       </section>
     </main>
   );

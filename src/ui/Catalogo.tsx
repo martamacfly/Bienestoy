@@ -14,7 +14,7 @@ export function Catalogo({
   const [nuevaActividad, setNuevaActividad] = useState("");
 
   return (
-    <main>
+    <main className="catalogo">
       <header className="marca">
         <div>
           <TituloPantalla ruta="catalogo">Catálogo</TituloPantalla>
@@ -31,12 +31,14 @@ export function Catalogo({
         )}
       </header>
 
-      <section className="tarjeta">
-        {estado.actividades.length === 0 ? (
+      {estado.actividades.length === 0 ? (
+        <section className="tarjeta">
           <p className="vacio">Nada en el catálogo.</p>
-        ) : (
-          estado.actividades.map((actividad) => (
-            <article className="dia-semana" key={actividad.id}>
+        </section>
+      ) : (
+        <section className="lista-fichas">
+          {estado.actividades.map((actividad) => (
+            <article className="ficha" key={actividad.id}>
               {editando ? (
                 <>
                   <label className="campo">
@@ -68,7 +70,6 @@ export function Catalogo({
                   />
                   <button
                     className="boton secundario"
-                    style={{ marginTop: "0.5rem" }}
                     onClick={() =>
                       dispatch({
                         tipo: "eliminarActividad",
@@ -80,25 +81,37 @@ export function Catalogo({
                   </button>
                 </>
               ) : (
-                <div>
-                  <strong>{actividad.nombre}</strong>
+                <>
+                  <header className="ficha-cabecera">
+                    <h2>{actividad.nombre}</h2>
+                    {actividad.guionPorDefecto.length > 0 ? (
+                      <p className="ficha-cuenta">
+                        {actividad.guionPorDefecto.length === 1
+                          ? "1 ejercicio"
+                          : `${actividad.guionPorDefecto.length} ejercicios`}
+                      </p>
+                    ) : null}
+                  </header>
                   {actividad.guionPorDefecto.length > 0 ? (
-                    <p className="muted" style={{ margin: "0.15rem 0 0" }}>
-                      {actividad.guionPorDefecto
-                        .map((linea) => linea.nombre)
-                        .join(" · ")}
-                    </p>
+                    <ul className="lista-guion">
+                      {actividad.guionPorDefecto.map((linea, indice) => (
+                        <li
+                          className="linea-guion"
+                          key={`${linea.nombre}-${indice}`}
+                        >
+                          {linea.nombre}
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
-                    <p className="vacio" style={{ margin: "0.15rem 0 0" }}>
-                      Sin ejercicios
-                    </p>
+                    <p className="vacio">Sin ejercicios</p>
                   )}
-                </div>
+                </>
               )}
             </article>
-          ))
-        )}
-      </section>
+          ))}
+        </section>
+      )}
 
       {editando && (
         <section className="tarjeta">

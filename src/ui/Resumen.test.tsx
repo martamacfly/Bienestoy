@@ -197,4 +197,29 @@ describe("Resumen", () => {
     });
     expect(visto).toBe("");
   });
+
+  it("enseña flecha atrás y no adelante en esta semana", async () => {
+    await act(async () => {
+      pintar(estadoSemilla());
+    });
+    expect(nodo.querySelector("button[aria-label='Semana anterior']")).toBeTruthy();
+    expect(
+      nodo.querySelector("button[aria-label='Semana siguiente']"),
+    ).toBeNull();
+  });
+
+  it("la flecha adelante vuelve a esta semana", async () => {
+    let visto = "";
+    await act(async () => {
+      pintar(estadoSemilla(), LUNES_PASADO, (lunes) => {
+        visto = lunes;
+      });
+    });
+    await act(async () => {
+      nodo
+        .querySelector<HTMLButtonElement>("button[aria-label='Semana siguiente']")!
+        .click();
+    });
+    expect(visto).toBe(HOY);
+  });
 });

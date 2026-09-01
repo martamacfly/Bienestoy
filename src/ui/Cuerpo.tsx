@@ -24,9 +24,7 @@ export function Cuerpo({
   const [peso, setPeso] = useState(
     estado.pesajes[fecha] !== undefined ? String(estado.pesajes[fecha]) : "",
   );
-  const [nuevaMedida, setNuevaMedida] = useState("");
   const pesajes = seriePesajes(estado);
-  const maxPeso = Math.max(...pesajes.map((p) => p.kg), 1);
   const esHoy = fecha === hoy;
 
   return (
@@ -41,7 +39,7 @@ export function Cuerpo({
       <section className="tarjeta">
         <h2>{esHoy ? "Pesaje de hoy" : "Pesaje"}</h2>
         <label className="campo">
-          kg
+          Peso (kg)
           <input
             inputMode="decimal"
             value={peso}
@@ -62,52 +60,21 @@ export function Cuerpo({
 
       <section className="tarjeta">
         <h2>Medidas</h2>
-        {estado.medidas.length === 0 ? (
-          <p className="vacio">Añade una medida, por ejemplo cintura.</p>
-        ) : (
-          estado.medidas.map((medida) => (
-            <MedidaDelDia
-              key={`${medida.id}-${fecha}`}
-              nombre={`${medida.nombre} (${medida.unidad})`}
-              valor={estado.valoresMedida[fecha]?.[medida.id]}
-              onGuardar={(valor) =>
-                dispatch({
-                  tipo: "registrarMedida",
-                  fecha,
-                  medidaId: medida.id,
-                  valor,
-                })
-              }
-              onEliminar={() =>
-                dispatch({ tipo: "eliminarMedida", id: medida.id })
-              }
-            />
-          ))
-        )}
-        <label className="campo">
-          Nueva medida
-          <input
-            value={nuevaMedida}
-            onChange={(e) => setNuevaMedida(e.target.value)}
-            placeholder="Cadera"
+        {estado.medidas.map((medida) => (
+          <MedidaDelDia
+            key={`${medida.id}-${fecha}`}
+            nombre={`${medida.nombre} (${medida.unidad})`}
+            valor={estado.valoresMedida[fecha]?.[medida.id]}
+            onGuardar={(valor) =>
+              dispatch({
+                tipo: "registrarMedida",
+                fecha,
+                medidaId: medida.id,
+                valor,
+              })
+            }
           />
-        </label>
-        <button
-          className="boton"
-          onClick={() => {
-            const nombre = nuevaMedida.trim();
-            if (!nombre) return;
-            dispatch({
-              tipo: "anadirMedida",
-              id: crypto.randomUUID(),
-              nombre,
-              unidad: "cm",
-            });
-            setNuevaMedida("");
-          }}
-        >
-          Añadir medida
-        </button>
+        ))}
       </section>
 
       <section className="tarjeta">
@@ -115,77 +82,30 @@ export function Cuerpo({
         {pesajes.length === 0 ? (
           <p className="vacio">Aún no hay pesajes.</p>
         ) : (
-          <ul className="lista">
-            {pesajes.map((punto) => (
-              <li key={punto.fecha}>
-                <span>{punto.fecha}</span>
-                <span>
-                  {punto.kg} kg
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: `${(punto.kg / maxPeso) * 72}px`,
-                      height: "8px",
-                      marginLeft: "0.6rem",
-                      background: "var(--naranja)",
-                      borderRadius: "99px",
-                      verticalAlign: "middle",
-                    }}
-                  />
-                </span>
-              </li>
-            ))}
-          </ul>
+          <Linea
+            puntos={pesajes.map((p) => ({ fecha: p.fecha, valor: p.kg }))}
+            unidad="kg"
+          />
         )}
       </section>
 
       <section className="tarjeta">
         <h2>Medidas en el tiempo</h2>
-        {estado.medidas.length === 0 ? (
-          <p className="vacio">Añade una medida arriba para ver su evolución.</p>
-        ) : (
-          estado.medidas.map((medida) => {
-            const serie = serieMedida(estado, medida.id);
-            const tope = Math.max(...serie.map((p) => p.valor), 1);
-            return (
-              <div key={medida.id} style={{ marginBottom: "1.1rem" }}>
-                <h3>
-                  {medida.nombre} ({medida.unidad})
-                </h3>
-                {serie.length === 0 ? (
-                  <p className="vacio">Aún no hay valores.</p>
-                ) : (
-                  <>
-                    {serie.length >= 2 && (
-                      <Linea puntos={serie} unidad={medida.unidad} />
-                    )}
-                    <ul className="lista">
-                      {serie.map((punto) => (
-                        <li key={punto.fecha}>
-                          <span>{punto.fecha}</span>
-                          <span>
-                            {punto.valor} {medida.unidad}
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: `${(punto.valor / tope) * 72}px`,
-                                height: "8px",
-                                marginLeft: "0.6rem",
-                                background: "var(--naranja)",
-                                borderRadius: "99px",
-                                verticalAlign: "middle",
-                              }}
-                            />
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-              </div>
-            );
-          })
-        )}
+        {estado.medidas.map((medida) => {
+          const serie = serieMedida(estado, medida.id);
+          return (
+            <div key={medida.id} className="bloque-grafica">
+              <h3>
+                {medida.nombre} ({medida.unidad})
+              </h3>
+              {serie.length === 0 ? (
+                <p className="vacio">Aún no hay valores.</p>
+              ) : (
+                <Linea puntos={serie} unidad={medida.unidad} />
+              )}
+            </div>
+          );
+        })}
       </section>
     </main>
   );
@@ -195,12 +115,10 @@ function MedidaDelDia({
   nombre,
   valor,
   onGuardar,
-  onEliminar,
 }: {
   nombre: string;
   valor: number | undefined;
   onGuardar: (valor: number) => void;
-  onEliminar: () => void;
 }) {
   const [texto, setTexto] = useState(valor !== undefined ? String(valor) : "");
   return (
@@ -211,21 +129,16 @@ function MedidaDelDia({
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
       />
-      <div className="fila">
-        <button
-          className="boton secundario"
-          onClick={() => {
-            const n = Number(texto.replace(",", "."));
-            if (!Number.isFinite(n) || n <= 0) return;
-            onGuardar(n);
-          }}
-        >
-          Guardar
-        </button>
-        <button className="boton secundario" onClick={onEliminar}>
-          Quitar
-        </button>
-      </div>
+      <button
+        className="boton"
+        onClick={() => {
+          const n = Number(texto.replace(",", "."));
+          if (!Number.isFinite(n) || n <= 0) return;
+          onGuardar(n);
+        }}
+      >
+        Guardar
+      </button>
     </div>
   );
 }
