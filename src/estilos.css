@@ -234,6 +234,11 @@ h3 {
   gap: 0.7rem;
 }
 
+.ficha-cabecera h2 {
+  flex: 1;
+  min-width: 0;
+}
+
 .ficha h2 {
   margin: 0;
   font-size: 1.12rem;
@@ -260,6 +265,7 @@ h3 {
   font-size: 1rem;
   font-weight: 650;
   color: var(--naranja-oscura);
+  min-width: 0;
 }
 
 .ficha-subtitulo-fila {
@@ -343,6 +349,11 @@ h3 {
   flex-wrap: wrap;
 }
 
+.lista li > span:has(.nombre-con-cuanto) {
+  flex: 1 1 7rem;
+  min-width: 0;
+}
+
 .lista .linea-ejercicio {
   margin: 0;
 }
@@ -394,6 +405,7 @@ h3 {
 .marca-sesion h2 {
   margin: 0;
   flex: 1;
+  min-width: 0;
   color: var(--naranja-oscura);
 }
 
@@ -423,9 +435,10 @@ h3 {
 .linea-guion {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.05rem 0.5rem;
   padding: 0.35rem 0 0.35rem 1.05rem;
 }
 
@@ -502,13 +515,42 @@ h3 {
   white-space: nowrap;
 }
 
+.nombre-con-cuanto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.45rem;
+  row-gap: 0.05rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nombre-con-cuanto-nombre {
+  flex: 1 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.nombre-con-cuanto .cuanto {
+  flex: 0 0 auto;
+}
+
 h2 .cuanto,
 .ficha-subtitulo .cuanto {
   font-size: 0.85em;
 }
 
+.linea-guion-nombre {
+  flex: 1 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
 .linea-guion-cuanto {
   margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .nav {
@@ -657,6 +699,7 @@ h2 .cuanto,
 
 .resumen-actividad > span {
   color: var(--naranja-oscura);
+  min-width: 0;
 }
 
 .resumen-actividad-cuenta {

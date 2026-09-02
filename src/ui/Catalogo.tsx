@@ -119,7 +119,7 @@ export function Catalogo({
                           className="linea-guion"
                           key={`${linea.nombre}-${indice}`}
                         >
-                          {linea.nombre}
+                          <span className="linea-guion-nombre">{linea.nombre}</span>
                           {linea.cuanto ? (
                             <span className="linea-guion-cuanto">
                               {etiquetaCuanto(linea.cuanto)}

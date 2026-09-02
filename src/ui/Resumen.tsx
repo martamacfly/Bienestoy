@@ -200,8 +200,10 @@ export function Resumen({
                 return (
                   <li key={actividad.nombre}>
                     <div className="resumen-actividad">
-                      <span>
-                        {actividad.nombre}
+                      <span className="nombre-con-cuanto">
+                        <span className="nombre-con-cuanto-nombre">
+                          {actividad.nombre}
+                        </span>
                         {cantidades ? (
                           <span className="cuanto"> · {cantidades}</span>
                         ) : null}

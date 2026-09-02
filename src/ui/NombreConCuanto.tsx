@@ -11,9 +11,9 @@ export function NombreConCuanto({
   const etiqueta = etiquetaCuanto(cuanto);
   if (!etiqueta) return nombre;
   return (
-    <>
-      {nombre}
+    <span className="nombre-con-cuanto">
+      <span className="nombre-con-cuanto-nombre">{nombre}</span>
       <span className="cuanto"> · {etiqueta}</span>
-    </>
+    </span>
   );
 }
