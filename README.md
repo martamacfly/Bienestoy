@@ -11,7 +11,7 @@ Sin cuenta ni nube. Los datos viven en este dispositivo.
 - **Hoy** — si hay sesión, actividad programada y un check si está hecha; si no hay plan, día de descanso. Siempre se puede apuntar un extra (con repeticiones o tiempo). Contador HIIT. Se puede deslizar a días anteriores (no al futuro). Atajo a Cuerpo de ese día.
 - **Semana** — el plan de cada día (actividad y ejercicios, o Descanso). Al editar se cambian días y ejercicios, y se puede copiar la semana anterior. Cualquier día se puede apuntar.
 - **Catálogo** — actividades y ejercicios, con repeticiones o tiempo.
-- **Resumen** — días con deporte, actividades programadas y extras (con tiempo o repeticiones) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
+- **Resumen** — tarta de la semana (días con y sin deporte), actividades hechas (programadas y extras, con tiempo o repeticiones) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
 - **Cuerpo** — pesaje (kg) y medidas fijas: cintura, brazo y cadera (cm).
 - **Ajustes** — exportar e importar una copia JSON, ver cuándo fue la última copia, instalar la app y empezar de cero.
 

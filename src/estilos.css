@@ -662,11 +662,22 @@ h2 .cuanto,
 }
 
 .bloque-grafica {
-  margin-top: 0.85rem;
+  margin-top: 0.45rem;
 }
 
 .bloque-grafica h3 {
   margin-bottom: 0.1rem;
+}
+
+.dias-deporte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  color: var(--naranja-oscura);
+  font-weight: 650;
 }
 
 .leyenda {

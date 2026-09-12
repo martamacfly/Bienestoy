@@ -1,12 +1,13 @@
 import {
-  diasSemana,
   etiquetaSemana,
   etiquetaTotalesCuanto,
+  fechasConDeporte,
+  fechasDeSemana,
   historialDias,
   lunesAlDeslizar,
   lunesDe,
+  nombreDia,
   resumenActividades,
-  resumenDeporte,
   serieMedida,
   seriePesajes,
   sumarDias,
@@ -29,27 +30,18 @@ function pieza(n: number, una: string, varias: string): string | undefined {
   return undefined;
 }
 
-function cuentaActividad(a: {
-  hechas: number;
-  extras: number;
-  pendientes: number;
-  saltadas: number;
-}): string {
+function cuentaActividad(a: { hechas: number; extras: number }): string {
   return [
     pieza(a.hechas, "programada", "programadas"),
     pieza(a.extras, "extra", "extras"),
-    pieza(a.pendientes, "pendiente", "pendientes"),
-    pieza(a.saltadas, "saltada", "saltadas"),
   ]
     .filter((parte): parte is string => Boolean(parte))
     .join(" · ");
 }
 
 const COLOR_SI = "var(--naranja)";
-const COLOR_NO = "var(--terracota)";
-const COLOR_SUAVE = "#c4b4a4";
 const COLOR_EXTRA = "var(--naranja-clara)";
-const COLOR_PENDIENTE = "#d3c8b4";
+const COLOR_SIN = "#d3c8b4";
 
 export function Resumen({
   estado,
@@ -64,8 +56,13 @@ export function Resumen({
 }) {
   const esta = lunes === lunesDe(hoy);
   const tope = esta ? hoy : sumarDias(lunes, 6);
-  const estaSemana = diasSemana(estado, lunes, tope);
-  const deporte = resumenDeporte(estado, lunes, tope);
+  const diasDeporte = fechasConDeporte(estado, lunes, tope);
+  const diasSemana = fechasDeSemana(lunes);
+  const sinDeporte = diasSemana.length - diasDeporte.length;
+  const porcionesDias = [
+    { etiqueta: "con deporte", valor: diasDeporte.length, color: COLOR_SI },
+    { etiqueta: "sin deporte", valor: sinDeporte, color: COLOR_SIN },
+  ];
   const semanas = historialDias(estado, tope, 8);
   const actividades = resumenActividades(estado, {
     desde: lunes,
@@ -73,20 +70,8 @@ export function Resumen({
   });
   const pesajes = seriePesajes(estado);
   const hayDias = semanas.some((s) => s.total > 0);
-  const hayMarcas = actividades.length > 0;
-  const hayGraficaActividades = actividades.some(
-    (a) => a.hechas + a.extras + a.pendientes + a.saltadas > 0,
-  );
-  const noCumplidas = Math.max(estaSemana.total - estaSemana.hechas, 0);
-  const porcionesDeporte = [
-    { etiqueta: "sí", valor: deporte.si, color: COLOR_SI },
-    { etiqueta: "no", valor: deporte.no, color: COLOR_NO },
-    { etiqueta: "sin marcar", valor: deporte.sinMarcar, color: COLOR_SUAVE },
-  ];
-  const porcionesDias = [
-    { etiqueta: "con deporte", valor: estaSemana.hechas, color: COLOR_SI },
-    { etiqueta: "sin cumplir", valor: noCumplidas, color: COLOR_PENDIENTE },
-  ];
+  const hechas = actividades.filter((a) => a.hechas + a.extras > 0);
+  const hayMarcas = hechas.length > 0;
   const deslizar = usarDeslizar((direccion) => {
     const siguiente = lunesAlDeslizar(lunes, hoy, direccion);
     if (siguiente) onVerSemana(siguiente);
@@ -126,18 +111,19 @@ export function Resumen({
       <section className="tarjeta">
         <h2>{esta ? "Esta semana" : "Semana"}</h2>
         <div className="bloque-grafica">
-          <h3>Deporte</h3>
-          <p className="muted">{esta ? "lunes → hoy" : "lunes → domingo"}</p>
-          <Tarta porciones={porcionesDeporte} ariaLabel="Deporte" />
-          <Leyenda items={porcionesDeporte} />
+          <h3>Días con deporte</h3>
+          <Tarta porciones={porcionesDias} ariaLabel="Días" />
+          <Leyenda items={porcionesDias} />
+          {diasDeporte.length > 0 ? (
+            <ul className="dias-deporte">
+              {diasDeporte.map((fecha) => (
+                <li key={fecha}>{nombreDia(fecha)}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="vacio">Aún no hay días con deporte.</p>
+          )}
         </div>
-        {estaSemana.total > 0 && (
-          <div className="bloque-grafica">
-            <h3>Días</h3>
-            <Tarta porciones={porcionesDias} ariaLabel="Días" />
-            <Leyenda items={porcionesDias} />
-          </div>
-        )}
       </section>
 
       <section className="tarjeta">
@@ -157,43 +143,33 @@ export function Resumen({
 
       <section className="tarjeta">
         <h2>Actividades</h2>
-        {hayMarcas && hayGraficaActividades ? (
+        {hayMarcas ? (
           <>
             <BarrasActividades
-              valores={actividades.map((a) => ({
+              valores={hechas.map((a) => ({
                 etiqueta: a.nombre,
                 hechas: a.hechas,
                 extras: a.extras,
-                pendientes: a.pendientes,
-                saltadas: a.saltadas,
+                pendientes: 0,
+                saltadas: 0,
               }))}
             />
             <Leyenda
               items={[
                 {
                   etiqueta: "programadas",
-                  valor: actividades.reduce((s, a) => s + a.hechas, 0),
+                  valor: hechas.reduce((s, a) => s + a.hechas, 0),
                   color: COLOR_SI,
                 },
                 {
                   etiqueta: "extras",
-                  valor: actividades.reduce((s, a) => s + a.extras, 0),
+                  valor: hechas.reduce((s, a) => s + a.extras, 0),
                   color: COLOR_EXTRA,
-                },
-                {
-                  etiqueta: "pendientes",
-                  valor: actividades.reduce((s, a) => s + a.pendientes, 0),
-                  color: COLOR_PENDIENTE,
-                },
-                {
-                  etiqueta: "saltadas",
-                  valor: actividades.reduce((s, a) => s + a.saltadas, 0),
-                  color: COLOR_NO,
                 },
               ]}
             />
             <ul className="lista">
-              {actividades.map((actividad) => {
+              {hechas.map((actividad) => {
                 const cantidades = etiquetaTotalesCuanto(actividad);
                 const cuenta = cuentaActividad(actividad);
                 if (!cuenta && !cantidades) return null;
@@ -220,7 +196,7 @@ export function Resumen({
             </ul>
           </>
         ) : (
-          <p className="vacio">Aún no hay actividad programada ni extra.</p>
+          <p className="vacio">Aún no hay actividad hecha esta semana.</p>
         )}
       </section>
 

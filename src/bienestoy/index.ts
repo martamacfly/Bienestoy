@@ -38,6 +38,7 @@ export {
   deporteDelDia,
   diaDe,
   diasSemana,
+  fechasConDeporte,
   historialDias,
   historialSemanas,
   resumenActividades,

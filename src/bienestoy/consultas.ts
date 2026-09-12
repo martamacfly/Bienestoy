@@ -53,6 +53,20 @@ function cuentaDia(estado: Estado, fecha: IsoDate): "hecha" | "sin_cumplir" | nu
   return null;
 }
 
+export function fechasConDeporte(
+  estado: Estado,
+  lunes: IsoDate,
+  hasta?: IsoDate,
+): IsoDate[] {
+  const tope = hasta ?? sumarDias(lunesDe(lunes), 6);
+  const fechas: IsoDate[] = [];
+  for (const fecha of fechasDeSemana(lunesDe(lunes))) {
+    if (fecha > tope) break;
+    if (cuentaDia(estado, fecha) === "hecha") fechas.push(fecha);
+  }
+  return fechas;
+}
+
 export function diasSemana(
   estado: Estado,
   lunes: IsoDate,

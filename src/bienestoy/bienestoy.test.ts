@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { aplicar } from "./aplicar";
 import { fechaAlDeslizar, lunesAlDeslizar, lunesDe } from "./calendario";
 import { normalizarEstado } from "./normalizar";
-import { cumplimientoSemana, deporteDelDia, diaDe, diasSemana, historialDias, historialSemanas, resumenActividades, resumenDeporte, serieMedida } from "./consultas";
+import { cumplimientoSemana, deporteDelDia, diaDe, diasSemana, fechasConDeporte, historialDias, historialSemanas, resumenActividades, resumenDeporte, serieMedida } from "./consultas";
 import { exportarJSON, importarJSON } from "./exportar";
 import { ID_CAMINAR, ID_CINTURA, ID_GYM, ID_RUNNING, ID_YOGA, estadoSemilla } from "./seed";
 import type { Accion, Estado } from "./types";
@@ -581,6 +581,7 @@ describe("resumen", () => {
       hechas: 2,
       total: 2,
     });
+    expect(fechasConDeporte(estado, LUNES, MARTES)).toEqual([LUNES, MARTES]);
     const semanas = historialDias(estado, MARTES, 2);
     expect(semanas[1]).toMatchObject({
       lunes: LUNES,
@@ -605,6 +606,7 @@ describe("resumen", () => {
       hechas: 1,
       total: 2,
     });
+    expect(fechasConDeporte(estado, LUNES, MARTES)).toEqual([MARTES]);
   });
 
   it("un extra cuenta el día aunque la sesión del plan no esté hecha", () => {

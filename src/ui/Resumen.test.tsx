@@ -90,18 +90,28 @@ describe("Resumen", () => {
       pintar(estadoSemilla());
     });
     expect(nodo.querySelector("svg[aria-label='Actividades']")).toBeNull();
-    expect(nodo.textContent).toContain("Aún no hay actividad programada ni extra");
-    expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeTruthy();
-    expect(nodo.textContent).toContain("sin marcar");
+    expect(nodo.textContent).toContain("Aún no hay actividad hecha esta semana");
+    expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeNull();
+    expect(nodo.querySelector("svg[aria-label='Días']")).toBeTruthy();
+    expect(nodo.textContent).toContain("sin deporte 7");
+    expect(nodo.textContent).toContain("Aún no hay días con deporte");
+    expect(nodo.textContent).not.toContain("sin marcar");
+    expect(nodo.textContent).not.toContain("lunes → hoy");
+    expect(nodo.querySelector(".dias-deporte")).toBeNull();
   });
 
   it("grafica deporte, sesiones y actividades", async () => {
     await act(async () => {
       pintar(conMarcas());
     });
-    expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeTruthy();
-    expect(nodo.textContent).toContain("sí 1");
+    expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeNull();
     expect(nodo.querySelector("svg[aria-label='Días']")).toBeTruthy();
+    expect(nodo.textContent).not.toContain("sí 1");
+    expect(nodo.textContent).not.toContain("sin cumplir");
+    expect(nodo.textContent).not.toContain("lunes → hoy");
+    expect(nodo.textContent).toContain("con deporte 1");
+    expect(nodo.textContent).toContain("sin deporte 6");
+    expect(nodo.querySelector(".dias-deporte")?.textContent).toContain("lunes");
     const grafica = nodo.querySelector("svg[aria-label='Actividades']");
     expect(grafica).toBeTruthy();
     expect(grafica?.textContent).toContain("Gym");
@@ -113,6 +123,22 @@ describe("Resumen", () => {
     expect(nodo.textContent).toContain("1 programada");
     expect(nodo.textContent).toContain("Caminar · 40 min");
     expect(nodo.textContent).toContain("1 extra");
+    expect(nodo.textContent).not.toContain("pendiente");
+  });
+
+  it("una sesión sin hacer no sale en actividades", async () => {
+    let estado = estadoSemilla();
+    estado = aplicar(
+      estado,
+      { tipo: "colocarSesion", fecha: HOY, actividadId: ID_GYM },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      pintar(estado);
+    });
+    expect(nodo.querySelector("svg[aria-label='Actividades']")).toBeNull();
+    expect(nodo.textContent).toContain("Aún no hay actividad hecha esta semana");
+    expect(nodo.textContent).not.toContain("pendiente");
   });
 
   it("un extra sin plan cuenta en los días y en las 8 semanas", async () => {
@@ -127,6 +153,8 @@ describe("Resumen", () => {
     });
     expect(nodo.querySelector("svg[aria-label='Días']")).toBeTruthy();
     expect(nodo.textContent).toContain("con deporte 1");
+    expect(nodo.textContent).toContain("sin deporte 6");
+    expect(nodo.querySelector(".dias-deporte")?.textContent).toContain("lunes");
     expect(nodo.querySelector("svg[aria-label='Cumplimiento por semana']")).toBeTruthy();
     expect(nodo.textContent).not.toContain("Cuando tengas un plan");
     expect(nodo.querySelector("svg[aria-label='Actividades']")?.textContent).toContain(
@@ -156,7 +184,12 @@ describe("Resumen", () => {
     });
     expect(nodo.textContent).toContain("24–30 ago 2026");
     expect(nodo.textContent).not.toContain(" · esta");
-    expect(nodo.textContent).toContain("sí 1");
+    expect(nodo.textContent).not.toContain("lunes → domingo");
+    expect(nodo.querySelector("svg[aria-label='Deporte']")).toBeNull();
+    expect(nodo.querySelector("svg[aria-label='Días']")).toBeTruthy();
+    expect(nodo.textContent).toContain("con deporte 1");
+    expect(nodo.textContent).toContain("sin deporte 6");
+    expect(nodo.querySelector(".dias-deporte")?.textContent).toContain("lunes");
     expect(nodo.querySelector("svg[aria-label='Actividades']")?.textContent).toContain(
       "Caminar",
     );
