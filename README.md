@@ -1,5 +1,7 @@
 # Bienestoy
 
+![Bienestoy](assets/banner.jpg)
+
 App personal para ver el **plan de la semana** (lunes a domingo) y si se cumplió. Una sesión planificada por día; en Hoy se marca hecha. Un día sin plan es **Descanso**; si se hizo algo, se apunta como extra. El peso y las medidas van al lado, no mandan.
 
 Sin cuenta ni nube. Los datos viven en este dispositivo.
