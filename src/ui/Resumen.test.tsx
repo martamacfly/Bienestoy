@@ -39,17 +39,22 @@ function conMarcas(): Estado {
   );
   estado = aplicar(
     estado,
-    { tipo: "anadirExtra", fecha: HOY, actividadId: ID_CAMINAR },
+    { tipo: "colocarSesion", fecha: HOY, actividadId: ID_CAMINAR },
     { hoy: HOY },
   );
   estado = aplicar(
     estado,
     {
-      tipo: "definirCuantoExtra",
+      tipo: "definirCuantoSesion",
       fecha: HOY,
-      indice: 0,
+      indice: 1,
       cuanto: { valor: 40, unidad: "minutos" },
     },
+    { hoy: HOY },
+  );
+  estado = aplicar(
+    estado,
+    { tipo: "marcarSesion", fecha: HOY, indice: 1, estado: "hecha" },
     { hoy: HOY },
   );
   return estado;
@@ -117,12 +122,10 @@ describe("Resumen", () => {
     expect(grafica?.textContent).toContain("Gym");
     expect(grafica?.textContent).toContain("Caminar");
     expect(grafica?.querySelectorAll("rect").length).toBeGreaterThanOrEqual(2);
-    expect(nodo.textContent).toContain("programadas 1");
-    expect(nodo.textContent).toContain("extras 1");
+    expect(nodo.textContent).toContain("hechas 2");
     expect(nodo.textContent).toContain("Gym · 45 min");
-    expect(nodo.textContent).toContain("1 programada");
+    expect(nodo.textContent).toContain("1 hecha");
     expect(nodo.textContent).toContain("Caminar · 40 min");
-    expect(nodo.textContent).toContain("1 extra");
     expect(nodo.textContent).not.toContain("pendiente");
   });
 
@@ -141,11 +144,16 @@ describe("Resumen", () => {
     expect(nodo.textContent).not.toContain("pendiente");
   });
 
-  it("un extra sin plan cuenta en los días y en las 8 semanas", async () => {
+  it("una actividad hecha sin ser la única del día cuenta en los días", async () => {
     let estado = estadoSemilla();
     estado = aplicar(
       estado,
-      { tipo: "anadirExtra", fecha: HOY, actividadId: ID_CAMINAR },
+      { tipo: "colocarSesion", fecha: HOY, actividadId: ID_CAMINAR },
+      { hoy: HOY },
+    );
+    estado = aplicar(
+      estado,
+      { tipo: "marcarSesion", fecha: HOY, estado: "hecha" },
       { hoy: HOY },
     );
     await act(async () => {
@@ -166,7 +174,7 @@ describe("Resumen", () => {
     let estado = estadoSemilla();
     estado = aplicar(
       estado,
-      { tipo: "anadirExtra", fecha: LUNES_PASADO, actividadId: ID_CAMINAR },
+      { tipo: "colocarSesion", fecha: LUNES_PASADO, actividadId: ID_CAMINAR },
       { hoy: HOY },
     );
     estado = aplicar(
@@ -177,6 +185,11 @@ describe("Resumen", () => {
     estado = aplicar(
       estado,
       { tipo: "marcarSesion", fecha: HOY, estado: "hecha" },
+      { hoy: HOY },
+    );
+    estado = aplicar(
+      estado,
+      { tipo: "marcarSesion", fecha: LUNES_PASADO, estado: "hecha" },
       { hoy: HOY },
     );
     await act(async () => {

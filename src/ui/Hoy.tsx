@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Accion, Actividad, Dia, Estado, IsoDate } from "../bienestoy";
+import type { Accion, Estado, IsoDate } from "../bienestoy";
 import {
   diaDe,
   etiquetaCuanto,
@@ -14,63 +14,6 @@ import { SelectorActividad } from "./SelectorActividad";
 import { ContadorHiit } from "./ContadorHiit";
 import { NombreConCuanto } from "./NombreConCuanto";
 import { CamposCuantoActividad } from "./EditorGuion";
-
-function ExtrasDelDia({
-  dia,
-  fecha,
-  actividades,
-  dispatch,
-}: {
-  dia: Dia;
-  fecha: IsoDate;
-  actividades: Actividad[];
-  dispatch: (accion: Accion) => void;
-}) {
-  return (
-    <>
-      <h3>Actividad extra</h3>
-      {dia.extras.length === 0 ? (
-        <p className="muted">Si hiciste una actividad extra, apúntala.</p>
-      ) : (
-        <ul className="lista">
-          {dia.extras.map((extra, indice) => (
-            <li key={`${extra.actividadId}-${indice}`}>
-              <span>
-                <NombreConCuanto
-                  nombre={extra.actividadNombre}
-                  cuanto={extra.cuanto}
-                />
-              </span>
-              <CamposCuantoActividad
-                cuanto={extra.cuanto}
-                onCambiar={(cuanto) =>
-                  dispatch({
-                    tipo: "definirCuantoExtra",
-                    fecha,
-                    indice,
-                    cuanto,
-                  })
-                }
-              />
-              <BotonQuitar
-                onClick={() =>
-                  dispatch({ tipo: "quitarExtra", fecha, indice })
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-      <SelectorActividad
-        actividades={actividades}
-        etiqueta="Añadir extra"
-        onElegir={(actividadId) =>
-          dispatch({ tipo: "anadirExtra", fecha, actividadId })
-        }
-      />
-    </>
-  );
-}
 
 export function Hoy({
   estado,
@@ -87,7 +30,6 @@ export function Hoy({
 }) {
   const [hiit, setHiit] = useState(false);
   const dia = diaDe(estado, fecha);
-  const sesion = dia.sesion;
   const esHoy = fecha === hoy;
   const diaAnterior = fechaAlDeslizar(fecha, hoy, "anterior");
   const diaSiguiente = fechaAlDeslizar(fecha, hoy, "siguiente");
@@ -140,38 +82,59 @@ export function Hoy({
       {hiit && <ContadorHiit onCerrar={() => setHiit(false)} />}
 
       <section className="tarjeta">
-        {sesion ? (
-          <>
-            <h3>Actividad programada</h3>
-            <label className="marca-sesion">
-              <input
-                type="checkbox"
-                checked={sesion.estado === "hecha"}
-                aria-label="Hecha"
-                onChange={(e) =>
+        {dia.sesiones.length === 0 ? (
+          <div className="fila-hecho">
+            <h2>Día de descanso</h2>
+          </div>
+        ) : (
+          dia.sesiones.map((sesion, indice) => (
+            <div className="actividad-dia" key={`${sesion.actividadId}-${indice}`}>
+              <label className="marca-sesion">
+                <input
+                  type="checkbox"
+                  checked={sesion.estado === "hecha"}
+                  aria-label="Hecha"
+                  onChange={(e) =>
+                    dispatch({
+                      tipo: "marcarSesion",
+                      fecha,
+                      indice,
+                      estado: e.target.checked ? "hecha" : "pendiente",
+                    })
+                  }
+                />
+                <h2>
+                  <NombreConCuanto
+                    nombre={sesion.actividadNombre}
+                    cuanto={sesion.cuanto}
+                  />
+                </h2>
+                {sesion.estado === "hecha" && <IconoHecho />}
+              </label>
+              {sesion.programada === false && (
+                <BotonQuitar
+                  onClick={() =>
+                    dispatch({ tipo: "quitarSesion", fecha, indice })
+                  }
+                />
+              )}
+              <CamposCuantoActividad
+                cuanto={sesion.cuanto}
+                onCambiar={(cuanto) =>
                   dispatch({
-                    tipo: "marcarSesion",
+                    tipo: "definirCuantoSesion",
                     fecha,
-                    estado: e.target.checked ? "hecha" : "pendiente",
+                    indice,
+                    cuanto,
                   })
                 }
               />
-              <h2>
-                <NombreConCuanto
-                  nombre={sesion.actividadNombre}
-                  cuanto={sesion.cuanto}
-                />
-              </h2>
-              {sesion.estado === "hecha" && <IconoHecho />}
-            </label>
-            {sesion.guion.length > 0 && (
-              <div className="guion">
-                <h3>Guion</h3>
+              {sesion.guion.length > 0 && (
                 <ul className="lista-guion">
-                  {sesion.guion.map((linea, indice) => (
+                  {sesion.guion.map((linea, lineaIndice) => (
                     <li
                       className="linea-guion"
-                      key={`${linea.nombre}-${indice}`}
+                      key={`${linea.nombre}-${lineaIndice}`}
                     >
                       <span className="linea-guion-nombre">{linea.nombre}</span>
                       {linea.cuanto ? (
@@ -182,20 +145,26 @@ export function Hoy({
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="fila-hecho">
-            <h2>Día de descanso</h2>
-            {dia.extras.length > 0 && <IconoHecho />}
-          </div>
+              )}
+            </div>
+          ))
         )}
-        <ExtrasDelDia
-          dia={dia}
-          fecha={fecha}
-          actividades={estado.actividades}
-          dispatch={dispatch}
+        <SelectorActividad
+          actividades={estado.actividades.filter(
+            (actividad) =>
+              !dia.sesiones.some(
+                (sesion) => sesion.actividadId === actividad.id,
+              ),
+          )}
+          etiqueta="Añadir actividad"
+          onElegir={(actividadId) =>
+            dispatch({
+              tipo: "colocarSesion",
+              fecha,
+              actividadId,
+              programada: false,
+            })
+          }
         />
       </section>
       {!hiit && (

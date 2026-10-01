@@ -30,17 +30,11 @@ function pieza(n: number, una: string, varias: string): string | undefined {
   return undefined;
 }
 
-function cuentaActividad(a: { hechas: number; extras: number }): string {
-  return [
-    pieza(a.hechas, "programada", "programadas"),
-    pieza(a.extras, "extra", "extras"),
-  ]
-    .filter((parte): parte is string => Boolean(parte))
-    .join(" · ");
+function cuentaActividad(a: { hechas: number }): string {
+  return pieza(a.hechas, "hecha", "hechas") ?? "";
 }
 
 const COLOR_SI = "var(--naranja)";
-const COLOR_EXTRA = "var(--naranja-clara)";
 const COLOR_SIN = "#d3c8b4";
 
 export function Resumen({
@@ -70,7 +64,7 @@ export function Resumen({
   });
   const pesajes = seriePesajes(estado);
   const hayDias = semanas.some((s) => s.total > 0);
-  const hechas = actividades.filter((a) => a.hechas + a.extras > 0);
+  const hechas = actividades.filter((a) => a.hechas > 0);
   const hayMarcas = hechas.length > 0;
   const deslizar = usarDeslizar((direccion) => {
     const siguiente = lunesAlDeslizar(lunes, hoy, direccion);
@@ -149,7 +143,7 @@ export function Resumen({
               valores={hechas.map((a) => ({
                 etiqueta: a.nombre,
                 hechas: a.hechas,
-                extras: a.extras,
+                extras: 0,
                 pendientes: 0,
                 saltadas: 0,
               }))}
@@ -157,14 +151,9 @@ export function Resumen({
             <Leyenda
               items={[
                 {
-                  etiqueta: "programadas",
+                  etiqueta: "hechas",
                   valor: hechas.reduce((s, a) => s + a.hechas, 0),
                   color: COLOR_SI,
-                },
-                {
-                  etiqueta: "extras",
-                  valor: hechas.reduce((s, a) => s + a.extras, 0),
-                  color: COLOR_EXTRA,
                 },
               ]}
             />

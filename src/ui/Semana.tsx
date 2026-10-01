@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { Accion, Estado, IsoDate } from "../bienestoy";
 import {
   cumplimientoSemana,
-  deporteDelDia,
   diaDe,
   etiquetaCuanto,
   etiquetaFecha,
@@ -92,11 +91,7 @@ export function Semana({
       <section className="lista-fichas">
         {dias.map((fecha) => {
           const dia = diaDe(estado, fecha);
-          const sesion = dia.sesion;
-          const nGuion = sesion?.guion.length ?? 0;
-          const hecho =
-            sesion?.estado === "hecha" ||
-            (!sesion && deporteDelDia(estado, fecha) === "si");
+          const hecho = dia.sesiones.some((sesion) => sesion.estado === "hecha");
           return (
             <article className="ficha" key={fecha}>
               <header className="ficha-cabecera">
@@ -111,58 +106,52 @@ export function Semana({
                   </h2>
                 </button>
                 <div className="ficha-cabecera-meta">
-                  {!editando && nGuion > 0 && (
-                    <p className="ficha-cuenta">{cuentaEjercicios(nGuion)}</p>
-                  )}
                   {hecho && <IconoHecho />}
                 </div>
               </header>
-              {!editando && sesion && (
-                <>
-                  <p className="ficha-subtitulo">
-                    <NombreConCuanto
-                      nombre={sesion.actividadNombre}
-                      cuanto={sesion.cuanto}
-                    />
-                  </p>
-                  {nGuion > 0 ? (
-                    <ul className="lista-guion">
-                      {sesion.guion.map((linea, indice) => (
-                        <li
-                          className="linea-guion"
-                          key={`${linea.nombre}-${indice}`}
-                        >
-                          <span className="linea-guion-nombre">{linea.nombre}</span>
-                          {linea.cuanto ? (
-                            <span className="linea-guion-cuanto">
-                              {etiquetaCuanto(linea.cuanto)}
-                            </span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="vacio">Sin ejercicios</p>
-                  )}
-                </>
-              )}
-              {!editando && !sesion && (
+              {!editando && dia.sesiones.length === 0 && (
                 <p className="ficha-subtitulo">Descanso</p>
               )}
-              {!editando && dia.extras.length > 0 && (
-                <p className="muted extra-dia">
-                  Extra:{" "}
-                  {dia.extras.map((e, indice) => (
-                    <span key={`${e.actividadId}-${indice}`}>
-                      {indice > 0 ? ", " : ""}
-                      <NombreConCuanto
-                        nombre={e.actividadNombre}
-                        cuanto={e.cuanto}
-                      />
-                    </span>
-                  ))}
-                </p>
-              )}
+              {!editando &&
+                dia.sesiones.map((sesion, indice) => (
+                  <div
+                    className="actividad-dia"
+                    key={`${sesion.actividadId}-${indice}`}
+                  >
+                    <div className="ficha-cabecera">
+                      <p className="ficha-subtitulo">
+                        <NombreConCuanto
+                          nombre={sesion.actividadNombre}
+                          cuanto={sesion.cuanto}
+                        />
+                      </p>
+                      {sesion.guion.length > 0 && (
+                        <p className="ficha-cuenta">
+                          {cuentaEjercicios(sesion.guion.length)}
+                        </p>
+                      )}
+                    </div>
+                    {sesion.guion.length > 0 ? (
+                      <ul className="lista-guion">
+                        {sesion.guion.map((linea, lineaIndice) => (
+                          <li
+                            className="linea-guion"
+                            key={`${linea.nombre}-${lineaIndice}`}
+                          >
+                            <span className="linea-guion-nombre">{linea.nombre}</span>
+                            {linea.cuanto ? (
+                              <span className="linea-guion-cuanto">
+                                {etiquetaCuanto(linea.cuanto)}
+                              </span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="vacio">Sin ejercicios</p>
+                    )}
+                  </div>
+                ))}
               {!editando && (
                 <div className="ficha-pie">
                   <button
@@ -175,26 +164,59 @@ export function Semana({
               )}
               {editando && (
                 <>
-                  {sesion ? (
-                    <div className="ficha-subtitulo-fila">
-                      <p className="ficha-subtitulo">
-                        <NombreConCuanto
-                          nombre={sesion.actividadNombre}
-                          cuanto={sesion.cuanto}
+                  {dia.sesiones.length === 0 && (
+                    <p className="ficha-subtitulo">Descanso</p>
+                  )}
+                  {dia.sesiones.map((sesion, indice) => (
+                    <div
+                      className="detalle-dia"
+                      key={`${sesion.actividadId}-${indice}`}
+                    >
+                      <div className="ficha-subtitulo-fila">
+                        <p className="ficha-subtitulo">
+                          <NombreConCuanto
+                            nombre={sesion.actividadNombre}
+                            cuanto={sesion.cuanto}
+                          />
+                        </p>
+                        <BotonQuitar
+                          onClick={() =>
+                            dispatch({ tipo: "quitarSesion", fecha, indice })
+                          }
                         />
+                      </div>
+                      <SelectorActividad
+                        actividades={estado.actividades}
+                        etiqueta="Cambiar"
+                        onElegir={(actividadId) =>
+                          dispatch({
+                            tipo: "cambiarSesion",
+                            fecha,
+                            indice,
+                            actividadId,
+                          })
+                        }
+                      />
+                      <p className="muted">
+                        Ejercicios
+                        {sesion.guion.length ? ` (${sesion.guion.length})` : ""}
                       </p>
-                      <BotonQuitar
-                        onClick={() =>
-                          dispatch({ tipo: "quitarSesion", fecha })
+                      <EditorGuion
+                        lineas={sesion.guion}
+                        onCambiar={(lineas) =>
+                          dispatch({
+                            tipo: "reemplazarGuion",
+                            fecha,
+                            sesion: indice,
+                            lineas,
+                          })
                         }
                       />
                     </div>
-                  ) : (
-                    <p className="ficha-subtitulo">Descanso</p>
-                  )}
+                  ))}
                   <SelectorActividad
                     actividades={estado.actividades}
-                    etiqueta={sesion ? "Cambiar" : "Planificar"}
+                    etiqueta="Añadir actividad"
                     onElegir={(actividadId) =>
                       dispatch({
                         tipo: "colocarSesion",
@@ -203,62 +225,6 @@ export function Semana({
                       })
                     }
                   />
-                  {sesion && (
-                    <div className="detalle-dia">
-                      <p className="muted">
-                        Ejercicios
-                        {sesion.guion.length ? ` (${sesion.guion.length})` : ""}
-                      </p>
-                      <EditorGuion
-                        lineas={sesion.guion}
-                        onCambiar={(lineas) =>
-                          dispatch({ tipo: "reemplazarGuion", fecha, lineas })
-                        }
-                      />
-                    </div>
-                  )}
-                  <details className="detalle-dia">
-                    <summary>
-                      Extras
-                      {dia.extras.length ? ` (${dia.extras.length})` : ""}
-                    </summary>
-                    {dia.extras.length === 0 ? (
-                      <p className="vacio">Nada aparte del plan.</p>
-                    ) : (
-                      <ul className="lista">
-                        {dia.extras.map((extra, indice) => (
-                          <li key={`${extra.actividadId}-${indice}`}>
-                            <span>
-                              <NombreConCuanto
-                                nombre={extra.actividadNombre}
-                                cuanto={extra.cuanto}
-                              />
-                            </span>
-                            <BotonQuitar
-                              onClick={() =>
-                                dispatch({
-                                  tipo: "quitarExtra",
-                                  fecha,
-                                  indice,
-                                })
-                              }
-                            />
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <SelectorActividad
-                      actividades={estado.actividades}
-                      etiqueta="Añadir extra"
-                      onElegir={(actividadId) =>
-                        dispatch({
-                          tipo: "anadirExtra",
-                          fecha,
-                          actividadId,
-                        })
-                      }
-                    />
-                  </details>
                 </>
               )}
             </article>
@@ -267,14 +233,19 @@ export function Semana({
       </section>
 
       {editando && (
-        <button
-          className="boton ancho"
-          onClick={() =>
-            dispatch({ tipo: "copiarSemanaAnterior", lunesDestino: lunes })
-          }
-        >
-          Copiar semana anterior
-        </button>
+        <>
+          <button
+            className="boton ancho"
+            onClick={() =>
+              dispatch({ tipo: "copiarSemanaAnterior", lunesDestino: lunes })
+            }
+          >
+            Copiar semana anterior
+          </button>
+          <button className="boton ancho" onClick={() => setEditando(false)}>
+            Guardar
+          </button>
+        </>
       )}
     </main>
   );

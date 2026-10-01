@@ -9,6 +9,7 @@ import {
   aplicar,
   estadoSemilla,
   ID_GYM,
+  ID_RUNNING,
   type Accion,
   type Estado,
 } from "../bienestoy";
@@ -104,6 +105,7 @@ describe("Semana", () => {
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
     expect(nodo.textContent).toContain("3 ejercicios");
+    expect(nodo.textContent).not.toContain("6 ejercicios");
     expect(
       Array.from(nodo.querySelectorAll(".ficha")).filter((ficha) =>
         ficha.textContent?.includes("Descanso"),
@@ -142,20 +144,59 @@ describe("Semana", () => {
     expect(trasAlta[3]?.value).toBe("");
   });
 
+  it("muestra cada actividad del día con sus ejercicios", async () => {
+    let inicial = aplicar(
+      estadoSemilla(),
+      {
+        tipo: "definirGuionActividad",
+        id: ID_RUNNING,
+        lineas: [{ nombre: "Calentamiento" }],
+      },
+      { hoy: HOY },
+    );
+    inicial = aplicar(
+      inicial,
+      { tipo: "colocarSesion", fecha: LUNES, actividadId: ID_GYM },
+      { hoy: HOY },
+    );
+    inicial = aplicar(
+      inicial,
+      { tipo: "colocarSesion", fecha: LUNES, actividadId: ID_RUNNING },
+      { hoy: HOY },
+    );
+    await act(async () => {
+      raiz.render(<Arnes inicial={inicial} />);
+    });
+    const lunes = nodo.querySelector(".ficha");
+    expect(lunes?.textContent).toContain("Gym");
+    expect(lunes?.textContent).toContain("3 ejercicios");
+    expect(lunes?.textContent).toContain("Sentadilla");
+    expect(lunes?.textContent).toContain("Press");
+    expect(lunes?.textContent).toContain("Plank");
+    expect(lunes?.textContent).toContain("Running");
+    expect(lunes?.textContent).toContain("1 ejercicio");
+    expect(lunes?.textContent).toContain("Calentamiento");
+    expect(lunes?.querySelectorAll(".lista-guion")).toHaveLength(2);
+  });
+
   it("permite planificar un día vacío después de editar", async () => {
     await act(async () => {
       raiz.render(<Arnes />);
     });
-    expect(nodo.textContent).not.toContain("Planificar");
+    expect(nodo.textContent).not.toContain("Añadir actividad");
 
     await pulsar(nodo, "Editar");
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Planificar"),
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
     await act(async () => {
       selector!.value = ID_GYM;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
     expect(nodo.textContent).toContain("Gym");
+
+    await pulsar(nodo, "Guardar");
+    expect(nodo.textContent).not.toContain("Añadir actividad");
+    expect(nodo.textContent).toContain("Editar");
   });
 });

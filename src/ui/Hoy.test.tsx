@@ -61,9 +61,7 @@ describe("Hoy", () => {
       raiz.render(<Arnes />);
     });
     expect(nodo.textContent).toContain("Día de descanso");
-    expect(nodo.textContent).toContain("Actividad extra");
-    expect(nodo.textContent).not.toContain("Actividad programada");
-    expect(nodo.textContent).toContain("Añadir extra");
+    expect(nodo.textContent).toContain("Añadir actividad");
     expect(nodo.textContent).not.toContain("Sin sesión planificada");
     expect(
       Array.from(nodo.querySelectorAll("button")).find(
@@ -125,13 +123,20 @@ describe("Hoy", () => {
       raiz.render(<Arnes />);
     });
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Añadir extra"),
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
     await act(async () => {
       selector!.value = ID_CAMINAR;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar");
+    expect(nodo.textContent).toContain("Caminar");
+    expect(nodo.querySelector(".icono-hecho")).toBeNull();
+    const hecha = nodo.querySelector<HTMLInputElement>(
+      "input[aria-label='Hecha']",
+    );
+    await act(async () => {
+      hecha!.click();
+    });
     expect(nodo.querySelector(".icono-hecho")).toBeTruthy();
   });
 
@@ -140,7 +145,7 @@ describe("Hoy", () => {
       raiz.render(<Arnes />);
     });
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Añadir extra"),
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
     await act(async () => {
       selector!.value = ID_CAMINAR;
@@ -159,7 +164,7 @@ describe("Hoy", () => {
       cantidad!.dispatchEvent(new Event("input", { bubbles: true }));
       cantidad!.blur();
     });
-    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar · 40 min");
+    expect(nodo.textContent).toContain("Caminar · 40 min");
   });
 
   it("con sesión permite marcarla hecha y muestra el guion", async () => {
@@ -171,13 +176,13 @@ describe("Hoy", () => {
     await act(async () => {
       raiz.render(<Arnes inicial={inicial} />);
     });
-    expect(nodo.textContent).toContain("Actividad programada");
     expect(nodo.textContent).toContain("Gym");
     expect(nodo.textContent).toContain("Sentadilla");
     expect(
       nodo.querySelectorAll(".lista-guion .linea-guion").length,
     ).toBeGreaterThanOrEqual(3);
     expect(nodo.querySelectorAll("input[type='checkbox']")).toHaveLength(1);
+    expect(nodo.querySelector("button[aria-label='Quitar']")).toBeNull();
     expect(
       Array.from(nodo.querySelectorAll("select")).find((el) =>
         el.closest("label")?.textContent?.includes("Cambiar"),
@@ -231,15 +236,21 @@ describe("Hoy", () => {
     await act(async () => {
       raiz.render(<Arnes inicial={inicial} />);
     });
-    expect(nodo.textContent).toContain("Actividad extra");
     const selector = Array.from(nodo.querySelectorAll("select")).find((el) =>
-      el.closest("label")?.textContent?.includes("Añadir extra"),
+      el.closest("label")?.textContent?.includes("Añadir actividad"),
     );
     await act(async () => {
       selector!.value = ID_CAMINAR;
       selector!.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    expect(nodo.querySelector(".lista > li")?.textContent).toContain("Caminar");
+    expect(nodo.textContent).toContain("Caminar");
+    expect(nodo.querySelectorAll("input[aria-label='Hecha']")).toHaveLength(2);
+    expect(nodo.querySelectorAll("button[aria-label='Quitar']")).toHaveLength(1);
+    const opciones = Array.from(
+      nodo.querySelectorAll<HTMLOptionElement>("select option"),
+    ).map((opcion) => opcion.value);
+    expect(opciones).not.toContain(ID_GYM);
+    expect(opciones).not.toContain(ID_CAMINAR);
   });
 
   it("permite marcar una sesión de un día pasado", async () => {

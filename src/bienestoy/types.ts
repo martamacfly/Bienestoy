@@ -24,19 +24,13 @@ export type Sesion = {
   actividadId: string;
   actividadNombre: string;
   estado: EstadoSesion;
+  programada: boolean;
   cuanto?: CuantoEjercicio;
   guion: LineaGuion[];
 };
 
-export type Extra = {
-  actividadId: string;
-  actividadNombre: string;
-  cuanto?: CuantoEjercicio;
-};
-
 export type Dia = {
-  sesion?: Sesion;
-  extras: Extra[];
+  sesiones: Sesion[];
   deporteManual?: boolean;
 };
 
@@ -64,14 +58,13 @@ export type Estado = {
 export type DeporteDelDia = "si" | "no" | "sin_marcar";
 
 export type Accion =
-  | { tipo: "colocarSesion"; fecha: IsoDate; actividadId: string }
-  | { tipo: "quitarSesion"; fecha: IsoDate }
-  | { tipo: "marcarSesion"; fecha: IsoDate; estado: EstadoSesion }
-  | { tipo: "tacharGuion"; fecha: IsoDate; indice: number; tachado: boolean }
-  | { tipo: "reemplazarGuion"; fecha: IsoDate; lineas: LineaGuion[] }
-  | { tipo: "anadirExtra"; fecha: IsoDate; actividadId: string }
-  | { tipo: "quitarExtra"; fecha: IsoDate; indice: number }
-  | { tipo: "definirCuantoExtra"; fecha: IsoDate; indice: number; cuanto?: CuantoEjercicio }
+  | { tipo: "colocarSesion"; fecha: IsoDate; actividadId: string; programada?: boolean }
+  | { tipo: "cambiarSesion"; fecha: IsoDate; indice: number; actividadId: string }
+  | { tipo: "quitarSesion"; fecha: IsoDate; indice: number }
+  | { tipo: "marcarSesion"; fecha: IsoDate; estado: EstadoSesion; indice?: number }
+  | { tipo: "tacharGuion"; fecha: IsoDate; indice: number; tachado: boolean; sesion?: number }
+  | { tipo: "reemplazarGuion"; fecha: IsoDate; lineas: LineaGuion[]; sesion?: number }
+  | { tipo: "definirCuantoSesion"; fecha: IsoDate; indice: number; cuanto?: CuantoEjercicio }
   | { tipo: "responderDeporte"; fecha: IsoDate; si: boolean }
   | { tipo: "registrarPesaje"; fecha: IsoDate; kg: number }
   | { tipo: "registrarMedida"; fecha: IsoDate; medidaId: string; valor: number }

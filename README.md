@@ -2,7 +2,7 @@
 
 ![Bienestoy](assets/banner.jpg)
 
-App personal para ver el **plan de la semana** (lunes a domingo) y si se cumplió. Una sesión planificada por día; en Hoy se marca hecha. Un día sin plan es **Descanso**; si se hizo algo, se apunta como extra. El peso y las medidas van al lado, no mandan.
+App personal para ver el **plan de la semana** (lunes a domingo) y si se cumplió. Un día puede tener varias actividades; en Hoy cada una se marca hecha. Un día sin plan es **Descanso**. El peso y las medidas van al lado, no mandan.
 
 Sin cuenta ni nube. Los datos viven en este dispositivo.
 
@@ -10,10 +10,10 @@ Sin cuenta ni nube. Los datos viven en este dispositivo.
 
 ## Qué hace
 
-- **Hoy** — si hay sesión, actividad programada y un check si está hecha; si no hay plan, día de descanso. Siempre se puede apuntar un extra (con repeticiones o tiempo). Contador HIIT. Se puede deslizar a días anteriores (no al futuro). Atajo a Cuerpo de ese día.
-- **Semana** — el plan de cada día (actividad y ejercicios, o Descanso). Al editar se cambian días y ejercicios, y se puede copiar la semana anterior. Cualquier día se puede apuntar.
+- **Hoy** — las actividades del día, cada una con un check si está hecha; si no hay plan, día de descanso. Se puede añadir otra actividad (con repeticiones o tiempo). Contador HIIT. Se puede deslizar a días anteriores (no al futuro). Atajo a Cuerpo de ese día.
+- **Semana** — el plan de cada día (una o varias actividades y sus ejercicios, o Descanso). Al editar se añaden actividades y se cambian los ejercicios, y se puede copiar la semana anterior. Cualquier día se puede apuntar.
 - **Catálogo** — actividades y ejercicios, con repeticiones o tiempo.
-- **Resumen** — tarta de la semana (días con y sin deporte), actividades hechas (programadas y extras, con tiempo o repeticiones) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
+- **Resumen** — tarta de la semana (días con y sin deporte), actividades hechas (con tiempo o repeticiones) y cuerpo. Se puede deslizar a semanas anteriores (no al futuro).
 - **Cuerpo** — pesaje (kg) y medidas fijas: cintura, brazo y cadera (cm).
 - **Ajustes** — exportar e importar una copia JSON, ver cuándo fue la última copia, instalar la app y empezar de cero.
 

@@ -6,23 +6,23 @@ Contexto de salud personal: hacer visible la intención de la semana y si se cum
 ## Language
 
 **Plan semanal**:
-El compromiso de la usuaria para una semana concreta (lunes a domingo), expresado como un calendario de sesiones. Primero se ve lo planificado (o el vacío); al editar se puede cambiar cualquier día y el guion de cada sesión. Se puede editar cualquier día, también de semanas pasadas: si se olvidó apuntar, se apunta después. El domingo no cierra el registro. Una semana nueva puede nacer copiando la anterior (actividad + guion, sin marcas ni extras ni peso) y editándola.
+El compromiso de la usuaria para una semana concreta (lunes a domingo), expresado como un calendario de sesiones. Primero se ve lo planificado (o el vacío); al editar se puede cambiar cualquier día y el guion de cada sesión. Se puede editar cualquier día, también de semanas pasadas: si se olvidó apuntar, se apunta después. El domingo no cierra el registro. Una semana nueva puede nacer copiando la anterior (actividades + guion, sin marcas ni peso) y editándola.
 _Avoid_: rutina, programa de entrenamiento, diario, hábito diario, bolsa de la semana, semana domingo–sábado, plantilla de semana, copia automática
 
 **Sesión**:
-La pieza planificada del día: una actividad y, cuando aplica, un guion. Como máximo una por día. En Hoy se nombra actividad programada y se marca hecha con un check; si no está marcada, no cumple. Puede copiar del catálogo una cantidad en repeticiones o tiempo. No hay RPE ni nota de sesión.
+Una actividad planificada en un día, con su guion cuando aplica. Un día puede tener varias. En Hoy cada una se marca hecha con su check; si no está marcada, no cumple. Puede copiar del catálogo una cantidad en repeticiones o tiempo. No hay RPE ni nota de sesión.
 _Avoid_: hábito, entrada, log, entrenamiento, extra
 
 **Extra**:
-Una actividad del catálogo hecha ese día que no es la sesión del plan. Sin guion. Puede copiar del catálogo una cantidad en repeticiones o tiempo, y en Hoy se apunta como actividad extra (se puede poner o cambiar la cantidad). No cuenta para cumplir la semana. En Hoy se apunta siempre, haya sesión o no. Si el día está vacío, tener un extra implica deporte sí y muestra el check.
-_Avoid_: sesión, segunda sesión, nota de texto
+No se usa. Otra actividad del mismo día es otra sesión, no un aparte.
+_Avoid_: actividad extra, segunda categoría de lo hecho
 
 **Guion**:
 Los ejercicios previstos dentro de una sesión. Se ven en Hoy como lista; se planifican y editan en la semana. No se tachan y no deciden si la sesión está cumplida.
 _Avoid_: plan, checklist de cumplimiento, rutina
 
 **Actividad**:
-Un tipo de práctica del catálogo: running, gym, yoga, caminar. Da nombre a la sesión y al extra. Puede llevar una cantidad en repeticiones o en tiempo. El catálogo se mira como lista y se cambia al editar.
+Un tipo de práctica del catálogo: running, gym, yoga, caminar. Da nombre a la sesión. Puede llevar una cantidad en repeticiones o en tiempo. El catálogo se mira como lista y se cambia al editar, actividad por actividad.
 _Avoid_: deporte, ejercicio (ese es el movimiento de dentro)
 
 **Ejercicio**:
@@ -30,15 +30,15 @@ Un movimiento concreto que vive dentro de una actividad, no en un pool global. P
 _Avoid_: actividad, deporte, catálogo global, series, sets, RPE
 
 **Día**:
-Un día del calendario. Puede tener una sesión o estar vacío. Un día vacío es día de descanso en el plan.
+Un día del calendario. Puede tener varias sesiones o estar vacío. Un día vacío es día de descanso en el plan.
 _Avoid_: hábito, racha
 
 **Día de descanso**:
-Un día sin sesión en el plan. En Hoy se nombra así. No se pregunta sí/no; si se hizo una actividad, se apunta como extra y aparece el check.
+Un día sin sesión en el plan. En Hoy se nombra así. No se pregunta sí/no; si se añade una actividad, aparece su check.
 _Avoid_: off, rest como actividad del catálogo, sí/no de deporte
 
 **Deporte del día**:
-Si hay sesión: hecha implica sí; si no está marcada, queda sin marcar. Si el día está vacío: un extra implica sí; sin extra es descanso y no se pregunta. Un extra no cambia el sí/no si ya hay sesión.
+Si alguna sesión está hecha, es sí. Si hay sesiones y ninguna está hecha, queda sin marcar; si todas están saltadas, es no. Un día vacío es descanso y no se pregunta.
 _Avoid_: diario paralelo, hábito diario, segundo canal, botones sí/no
 
 **Pesaje**:

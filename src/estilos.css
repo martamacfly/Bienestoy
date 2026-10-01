@@ -202,6 +202,7 @@ h3 {
 .boton.ancho {
   width: 100%;
   align-self: stretch;
+  scroll-margin-bottom: 6rem;
 }
 
 .boton.ancho + .boton.ancho {
@@ -279,6 +280,12 @@ h3 {
   margin: 0;
   flex: 1;
   min-width: 0;
+}
+
+.ficha .actividad-dia + .actividad-dia {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee4d6;
 }
 
 .ficha .lista-guion {
@@ -407,6 +414,11 @@ h3 {
   flex: 1;
   min-width: 0;
   color: var(--naranja-oscura);
+  font-size: 1.2rem;
+}
+
+.actividad-dia .linea-guion {
+  font-size: 0.92rem;
 }
 
 .icono-hecho {

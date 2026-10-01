@@ -12,7 +12,7 @@ export function Catalogo({
   estado: Estado;
   dispatch: (accion: Accion) => void;
 }) {
-  const [editando, setEditando] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
   const [nuevaActividad, setNuevaActividad] = useState("");
 
   return (
@@ -21,15 +21,6 @@ export function Catalogo({
         <div>
           <TituloPantalla ruta="catalogo">Catálogo</TituloPantalla>
           <p>Actividades y sus ejercicios.</p>
-          {editando ? (
-            <button className="boton" onClick={() => setEditando(false)}>
-              Listo
-            </button>
-          ) : (
-            <button className="boton" onClick={() => setEditando(true)}>
-              Editar
-            </button>
-          )}
         </div>
       </header>
 
@@ -39,8 +30,28 @@ export function Catalogo({
         </section>
       ) : (
         <section className="lista-fichas">
-          {estado.actividades.map((actividad) => (
+          {estado.actividades.map((actividad) => {
+            const editando = editandoId === actividad.id;
+            return (
             <article className="ficha" key={actividad.id}>
+              <header className="ficha-cabecera">
+                {!editando && (
+                  <h2>
+                    <NombreConCuanto
+                      nombre={actividad.nombre}
+                      cuanto={actividad.cuanto}
+                    />
+                  </h2>
+                )}
+                <button
+                  className="boton"
+                  onClick={() =>
+                    setEditandoId(editando ? null : actividad.id)
+                  }
+                >
+                  {editando ? "Listo" : "Editar"}
+                </button>
+              </header>
               {editando ? (
                 <>
                   <label className="campo">
@@ -97,21 +108,13 @@ export function Catalogo({
                 </>
               ) : (
                 <>
-                  <header className="ficha-cabecera">
-                    <h2>
-                      <NombreConCuanto
-                        nombre={actividad.nombre}
-                        cuanto={actividad.cuanto}
-                      />
-                    </h2>
-                    {actividad.guionPorDefecto.length > 0 ? (
-                      <p className="ficha-cuenta">
-                        {actividad.guionPorDefecto.length === 1
-                          ? "1 ejercicio"
-                          : `${actividad.guionPorDefecto.length} ejercicios`}
-                      </p>
-                    ) : null}
-                  </header>
+                  {actividad.guionPorDefecto.length > 0 ? (
+                    <p className="ficha-cuenta">
+                      {actividad.guionPorDefecto.length === 1
+                        ? "1 ejercicio"
+                        : `${actividad.guionPorDefecto.length} ejercicios`}
+                    </p>
+                  ) : null}
                   {actividad.guionPorDefecto.length > 0 ? (
                     <ul className="lista-guion">
                       {actividad.guionPorDefecto.map((linea, indice) => (
@@ -134,12 +137,12 @@ export function Catalogo({
                 </>
               )}
             </article>
-          ))}
+            );
+          })}
         </section>
       )}
 
-      {editando && (
-        <section className="tarjeta">
+      <section className="tarjeta">
           <label className="campo">
             Nueva actividad
             <input
@@ -163,7 +166,6 @@ export function Catalogo({
             Añadir actividad
           </button>
         </section>
-      )}
     </main>
   );
 }

@@ -3,7 +3,6 @@ import type {
   CuantoEjercicio,
   Dia,
   Estado,
-  Extra,
   LineaGuion,
   PlantillaEjercicio,
   Sesion,
@@ -56,18 +55,36 @@ export function normalizarEstado(bruto: Estado): Estado {
     medidas: medidasFijas.map((m) => ({ ...m })),
     dias: Object.fromEntries(
       Object.entries(bruto.dias).map(([fecha, dia]) => {
-        const sesion = dia.sesion
-          ? {
-              ...conCuantoLimpio(dia.sesion),
-              guion: (dia.sesion.guion as unknown[])
-                .map(lineaGuion)
-                .filter((linea): linea is LineaGuion => linea !== null),
-            }
-          : undefined;
+        const viejo = dia as Dia & {
+          sesion?: Sesion;
+          extras?: { actividadId: string; actividadNombre: string; cuanto?: unknown }[];
+        };
+        const crudas = viejo.sesiones ?? [
+          ...(viejo.sesion ? [viejo.sesion] : []),
+          ...(viejo.extras ?? []).map((extra) => ({
+            actividadId: extra.actividadId,
+            actividadNombre: extra.actividadNombre,
+            estado: "hecha" as const,
+            programada: false,
+            cuanto: extra.cuanto,
+            guion: [],
+          })),
+        ];
+        const sesiones = crudas.map((sesion) => {
+          const limpia = conCuantoLimpio(sesion);
+          return {
+            ...limpia,
+            programada: sesion.programada !== false,
+            guion: ((sesion.guion ?? []) as unknown[])
+              .map(lineaGuion)
+              .filter((linea): linea is LineaGuion => linea !== null),
+          };
+        });
         const siguiente: Dia = {
-          ...dia,
-          sesion: sesion as Sesion | undefined,
-          extras: dia.extras.map((extra) => conCuantoLimpio(extra) as Extra),
+          sesiones,
+          ...(viejo.deporteManual === undefined
+            ? {}
+            : { deporteManual: viejo.deporteManual }),
         };
         return [fecha, siguiente];
       }),

@@ -9,17 +9,16 @@ import type {
 } from "./types";
 
 export function diaDe(estado: Estado, fecha: IsoDate): Dia {
-  return estado.dias[fecha] ?? { extras: [] };
+  return estado.dias[fecha] ?? { sesiones: [] };
 }
 
 export function deporteDelDia(estado: Estado, fecha: IsoDate): DeporteDelDia {
   const dia = diaDe(estado, fecha);
-  if (dia.sesion) {
-    if (dia.sesion.estado === "hecha") return "si";
-    if (dia.sesion.estado === "saltada") return "no";
+  if (dia.sesiones.length > 0) {
+    if (dia.sesiones.some((sesion) => sesion.estado === "hecha")) return "si";
+    if (dia.sesiones.every((sesion) => sesion.estado === "saltada")) return "no";
     return "sin_marcar";
   }
-  if (dia.extras.length > 0) return "si";
   if (dia.deporteManual === true) return "si";
   if (dia.deporteManual === false) return "no";
   return "sin_marcar";
@@ -32,10 +31,10 @@ export function cumplimientoSemana(
   let hechas = 0;
   let planificadas = 0;
   for (const fecha of fechasDeSemana(lunesDe(lunes))) {
-    const sesion = diaDe(estado, fecha).sesion;
-    if (!sesion) continue;
-    planificadas += 1;
-    if (sesion.estado === "hecha") hechas += 1;
+    for (const sesion of diaDe(estado, fecha).sesiones) {
+      planificadas += 1;
+      if (sesion.estado === "hecha") hechas += 1;
+    }
   }
   return { hechas, planificadas };
 }
@@ -43,13 +42,12 @@ export function cumplimientoSemana(
 function cuentaDia(estado: Estado, fecha: IsoDate): "hecha" | "sin_cumplir" | null {
   const dia = diaDe(estado, fecha);
   if (
-    dia.sesion?.estado === "hecha" ||
-    dia.extras.length > 0 ||
+    dia.sesiones.some((sesion) => sesion.estado === "hecha") ||
     dia.deporteManual === true
   ) {
     return "hecha";
   }
-  if (dia.sesion || dia.deporteManual === false) return "sin_cumplir";
+  if (dia.sesiones.length > 0 || dia.deporteManual === false) return "sin_cumplir";
   return null;
 }
 
@@ -131,7 +129,6 @@ export type ActividadEnResumen = {
   hechas: number;
   saltadas: number;
   pendientes: number;
-  extras: number;
   minutos: number;
   segundos: number;
   repeticiones: number;
@@ -151,7 +148,6 @@ export function resumenActividades(
       hechas: 0,
       saltadas: 0,
       pendientes: 0,
-      extras: 0,
       ...totalesVacios(),
     };
     mapa.set(nombre, nueva);
@@ -167,26 +163,21 @@ export function resumenActividades(
 
   for (const [fecha, dia] of Object.entries(estado.dias)) {
     if (rango && (fecha < rango.desde || fecha > rango.hasta)) continue;
-    if (dia.sesion) {
-      const item = fila(dia.sesion.actividadNombre);
-      if (dia.sesion.estado === "hecha") {
+    for (const sesion of dia.sesiones) {
+      const item = fila(sesion.actividadNombre);
+      if (sesion.estado === "hecha") {
         item.hechas += 1;
-        anotarCuanto(item, dia.sesion.cuanto);
-        for (const linea of dia.sesion.guion) {
+        anotarCuanto(item, sesion.cuanto);
+        for (const linea of sesion.guion) {
           anotarCuanto(item, linea.cuanto);
         }
-      } else if (dia.sesion.estado === "saltada") item.saltadas += 1;
+      } else if (sesion.estado === "saltada") item.saltadas += 1;
       else item.pendientes += 1;
-    }
-    for (const extra of dia.extras) {
-      const item = fila(extra.actividadNombre);
-      item.extras += 1;
-      anotarCuanto(item, extra.cuanto);
     }
   }
 
   return [...mapa.values()].sort(
-    (a, b) => b.hechas + b.extras - (a.hechas + a.extras),
+    (a, b) => b.hechas - a.hechas,
   );
 }
 

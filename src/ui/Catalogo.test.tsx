@@ -47,8 +47,8 @@ describe("Catálogo", () => {
     expect(nodo.querySelectorAll(".ficha").length).toBeGreaterThanOrEqual(2);
     expect(nodo.querySelectorAll(".lista-guion .linea-guion").length).toBeGreaterThanOrEqual(3);
     expect(nodo.textContent).toContain("Editar");
+    expect(nodo.textContent).toContain("Añadir actividad");
     expect(nodo.textContent).not.toContain("Añadir ejercicio");
-    expect(nodo.textContent).not.toContain("Añadir actividad");
 
     const editar = Array.from(nodo.querySelectorAll("button")).find(
       (b) => b.textContent === "Editar",
@@ -56,7 +56,16 @@ describe("Catálogo", () => {
     await act(async () => {
       editar!.click();
     });
-    expect(nodo.textContent).toContain("Añadir ejercicio");
+    expect(
+      Array.from(nodo.querySelectorAll("button")).filter(
+        (b) => b.textContent === "Añadir ejercicio",
+      ),
+    ).toHaveLength(1);
+    expect(
+      Array.from(nodo.querySelectorAll("button")).filter(
+        (b) => b.textContent === "Editar",
+      ).length,
+    ).toBeGreaterThan(0);
     expect(nodo.textContent).toContain("Añadir actividad");
     expect(
       nodo.querySelector("input[aria-label='Nombre del ejercicio']"),

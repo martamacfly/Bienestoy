@@ -40,17 +40,22 @@ function hacer(
 }
 
 describe("deporte del día", () => {
-  it("un día vacío sin extras queda sin marcar", () => {
+  it("un día vacío queda sin marcar", () => {
     const estado = estadoSemilla();
     expect(deporteDelDia(estado, MARTES)).toBe("sin_marcar");
   });
 
-  it("un extra en día vacío implica deporte sí", () => {
+  it("una actividad hecha implica deporte sí", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: MARTES,
+      estado: "hecha",
     });
     expect(deporteDelDia(estado, MARTES)).toBe("si");
   });
@@ -80,7 +85,7 @@ describe("deporte del día", () => {
     expect(deporteDelDia(estado, MARTES)).toBe("si");
   });
 
-  it("sesión saltada implica no aunque haya extra", () => {
+  it("si todas las actividades están saltadas el día es no", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -92,13 +97,14 @@ describe("deporte del día", () => {
       fecha: MARTES,
       estado: "saltada",
     });
+    expect(deporteDelDia(estado, MARTES)).toBe("no");
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
     });
-    expect(deporteDelDia(estado, MARTES)).toBe("no");
-    expect(diaDe(estado, MARTES).extras).toHaveLength(1);
+    expect(deporteDelDia(estado, MARTES)).toBe("sin_marcar");
+    expect(diaDe(estado, MARTES).sesiones).toHaveLength(2);
   });
 
   it("no deja responder deporte a mano si ya hay sesión", () => {
@@ -118,7 +124,7 @@ describe("deporte del día", () => {
 });
 
 describe("sesión y plan", () => {
-  it("coloca como máximo una sesión y copia el guion de la actividad", () => {
+  it("admite varias actividades en el mismo día y copia el guion", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -130,10 +136,18 @@ describe("sesión y plan", () => {
       fecha: MARTES,
       actividadId: ID_RUNNING,
     });
-    const sesion = diaDe(estado, MARTES).sesion;
-    expect(sesion?.actividadId).toBe(ID_RUNNING);
-    expect(sesion?.guion).toEqual([]);
-    expect(sesion?.estado).toBe("pendiente");
+    const sesiones = diaDe(estado, MARTES).sesiones;
+    expect(sesiones.map((sesion) => sesion.actividadId)).toEqual([
+      ID_GYM,
+      ID_RUNNING,
+    ]);
+    expect(sesiones[0].guion.map((linea) => linea.nombre)).toEqual([
+      "Sentadilla",
+      "Press",
+      "Plank",
+    ]);
+    expect(sesiones[1].guion).toEqual([]);
+    expect(sesiones[1].estado).toBe("pendiente");
   });
 
   it("copia repeticiones o segundos del catálogo al planificar", () => {
@@ -151,7 +165,7 @@ describe("sesión y plan", () => {
       fecha: MARTES,
       actividadId: ID_GYM,
     });
-    expect(diaDe(estado, MARTES).sesion?.guion).toEqual([
+    expect(diaDe(estado, MARTES).sesiones[0]?.guion).toEqual([
       {
         nombre: "Sentadilla",
         tachado: false,
@@ -177,35 +191,92 @@ describe("sesión y plan", () => {
       fecha: MARTES,
       actividadId: ID_RUNNING,
     });
-    expect(diaDe(estado, MARTES).sesion?.cuanto).toEqual({
+    expect(diaDe(estado, MARTES).sesiones[0]?.cuanto).toEqual({
       valor: 30,
       unidad: "minutos",
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MIERCOLES,
       actividadId: ID_RUNNING,
     });
-    expect(diaDe(estado, MIERCOLES).extras[0].cuanto).toEqual({
+    expect(diaDe(estado, MIERCOLES).sesiones[0].cuanto).toEqual({
       valor: 30,
       unidad: "minutos",
     });
   });
 
-  it("permite poner repeticiones o tiempo en un extra", () => {
+  it("refleja en las actividades del día un cambio del catálogo", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_RUNNING,
+    });
+    estado = hacer(estado, {
+      tipo: "renombrarActividad",
+      id: ID_GYM,
+      nombre: "Fuerza",
+    });
+    estado = hacer(estado, {
+      tipo: "definirCuantoActividad",
+      id: ID_RUNNING,
+      cuanto: { valor: 25, unidad: "minutos" },
+    });
+    estado = hacer(estado, {
+      tipo: "definirGuionActividad",
+      id: ID_GYM,
+      lineas: [{ nombre: "Peso muerto" }],
+    });
+    const dia = diaDe(estado, MARTES);
+    expect(dia.sesiones[0]?.actividadNombre).toBe("Fuerza");
+    expect(dia.sesiones[0]?.guion.map((linea) => linea.nombre)).toEqual([
+      "Peso muerto",
+    ]);
+    expect(dia.sesiones[1].cuanto).toEqual({ valor: 25, unidad: "minutos" });
+  });
+
+  it("no pisa el guion de un día ya retocado al cambiar el catálogo", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
+      fecha: MARTES,
+      actividadId: ID_GYM,
+    });
+    estado = hacer(estado, {
+      tipo: "reemplazarGuion",
+      fecha: MARTES,
+      lineas: [{ nombre: "Solo este día", tachado: false }],
+    });
+    estado = hacer(estado, {
+      tipo: "definirGuionActividad",
+      id: ID_GYM,
+      lineas: [{ nombre: "Peso muerto" }],
+    });
+    expect(
+      diaDe(estado, MARTES).sesiones[0]?.guion.map((linea) => linea.nombre),
+    ).toEqual(["Solo este día"]);
+  });
+
+  it("permite poner repeticiones o tiempo en una actividad del día", () => {
+    let estado = estadoSemilla();
+    estado = hacer(estado, {
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
     });
     estado = hacer(estado, {
-      tipo: "definirCuantoExtra",
+      tipo: "definirCuantoSesion",
       fecha: MARTES,
       indice: 0,
       cuanto: { valor: 40, unidad: "minutos" },
     });
-    expect(diaDe(estado, MARTES).extras[0].cuanto).toEqual({
+    expect(diaDe(estado, MARTES).sesiones[0].cuanto).toEqual({
       valor: 40,
       unidad: "minutos",
     });
@@ -220,10 +291,10 @@ describe("sesión y plan", () => {
     );
     estado = hacer(
       estado,
-      { tipo: "colocarSesion", fecha: LUNES, actividadId: ID_YOGA },
+      { tipo: "cambiarSesion", fecha: LUNES, indice: 0, actividadId: ID_YOGA },
       JUEVES,
     );
-    expect(diaDe(estado, LUNES).sesion?.actividadId).toBe(ID_YOGA);
+    expect(diaDe(estado, LUNES).sesiones[0]?.actividadId).toBe(ID_YOGA);
   });
 
   it("sí permite marcar tarde un día pasado", () => {
@@ -238,7 +309,7 @@ describe("sesión y plan", () => {
       { tipo: "marcarSesion", fecha: LUNES, estado: "hecha" },
       JUEVES,
     );
-    expect(diaDe(estado, LUNES).sesion?.estado).toBe("hecha");
+    expect(diaDe(estado, LUNES).sesiones[0]?.estado).toBe("hecha");
   });
 
   it("tachar el guion no cumple la sesión", () => {
@@ -254,7 +325,7 @@ describe("sesión y plan", () => {
       indice: 0,
       tachado: true,
     });
-    expect(diaDe(estado, MARTES).sesion?.estado).toBe("pendiente");
+    expect(diaDe(estado, MARTES).sesiones[0]?.estado).toBe("pendiente");
     expect(cumplimientoSemana(estado, LUNES)).toEqual({
       hechas: 0,
       planificadas: 1,
@@ -274,7 +345,7 @@ describe("sesión y plan", () => {
       indice: 0,
       tachado: true,
     });
-    const actual = diaDe(estado, MARTES).sesion!.guion;
+    const actual = diaDe(estado, MARTES).sesiones[0]!.guion;
     estado = hacer(estado, {
       tipo: "reemplazarGuion",
       fecha: MARTES,
@@ -282,7 +353,7 @@ describe("sesión y plan", () => {
         i === 0 ? { ...linea, nombre: "Sentadilla goblet" } : linea,
       ),
     });
-    const guion = diaDe(estado, MARTES).sesion?.guion;
+    const guion = diaDe(estado, MARTES).sesiones[0]?.guion;
     expect(guion?.[0]).toMatchObject({
       nombre: "Sentadilla goblet",
       tachado: true,
@@ -327,7 +398,7 @@ describe("cumplimiento de la semana", () => {
 });
 
 describe("copiar semana anterior", () => {
-  it("copia actividad y guion, no marcas ni extras ni peso", () => {
+  it("copia las actividades y el guion, no las marcas ni el peso", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -346,7 +417,7 @@ describe("copiar semana anterior", () => {
       tachado: true,
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
     });
@@ -360,14 +431,17 @@ describe("copiar semana anterior", () => {
       lunesSiguiente,
     );
 
-    const copia = diaDe(estado, martesSiguiente).sesion;
+    const copia = diaDe(estado, martesSiguiente).sesiones[0];
     expect(copia?.actividadId).toBe(ID_GYM);
     expect(copia?.estado).toBe("pendiente");
     expect(copia?.guion[0]?.tachado).toBe(false);
     expect(copia?.guion[0]?.nombre).toBe("Sentadilla");
-    expect(diaDe(estado, martesSiguiente).extras).toEqual([]);
+    expect(diaDe(estado, martesSiguiente).sesiones[1]?.actividadId).toBe(
+      ID_CAMINAR,
+    );
+    expect(diaDe(estado, martesSiguiente).sesiones[1]?.estado).toBe("pendiente");
     expect(estado.pesajes[martesSiguiente]).toBeUndefined();
-    expect(diaDe(estado, MARTES).sesion?.estado).toBe("hecha");
+    expect(diaDe(estado, MARTES).sesiones[0]?.estado).toBe("hecha");
   });
 
   it("copia también los días ya pasados de la semana destino", () => {
@@ -383,7 +457,7 @@ describe("copiar semana anterior", () => {
       { tipo: "copiarSemanaAnterior", lunesDestino: lunesSiguiente },
       "2026-09-02",
     );
-    expect(diaDe(estado, lunesSiguiente).sesion?.actividadId).toBe(ID_GYM);
+    expect(diaDe(estado, lunesSiguiente).sesiones[0]?.actividadId).toBe(ID_GYM);
   });
 });
 
@@ -460,7 +534,7 @@ describe("copia JSON", () => {
 });
 
 describe("resumen", () => {
-  it("cuenta sesiones hechas, saltadas y extras por actividad", () => {
+  it("cuenta actividades hechas y saltadas", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -483,9 +557,15 @@ describe("resumen", () => {
       estado: "saltada",
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: MARTES,
+      indice: 1,
+      estado: "hecha",
     });
     const filas = resumenActividades(estado);
     expect(filas.find((f) => f.nombre === "Gym")).toMatchObject({
@@ -496,7 +576,7 @@ describe("resumen", () => {
       hechas: 0,
       saltadas: 1,
     });
-    expect(filas.find((f) => f.nombre === "Caminar")?.extras).toBe(1);
+    expect(filas.find((f) => f.nombre === "Caminar")?.hechas).toBe(1);
   });
 
   it("suma tiempo y repeticiones de lo hecho, no de lo pendiente", () => {
@@ -534,12 +614,12 @@ describe("resumen", () => {
       actividadId: ID_RUNNING,
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MIERCOLES,
       actividadId: ID_CAMINAR,
     });
     estado = hacer(estado, {
-      tipo: "definirCuantoExtra",
+      tipo: "definirCuantoSesion",
       fecha: MIERCOLES,
       indice: 0,
       cuanto: { valor: 40, unidad: "minutos" },
@@ -555,12 +635,12 @@ describe("resumen", () => {
       minutos: 0,
     });
     expect(filas.find((f) => f.nombre === "Caminar")).toMatchObject({
-      extras: 1,
-      minutos: 40,
+      pendientes: 1,
+      minutos: 0,
     });
   });
 
-  it("cuenta días con extra o deporte, no solo los planificados", () => {
+  it("cuenta un día cuando alguna de sus actividades está hecha", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -573,9 +653,14 @@ describe("resumen", () => {
       estado: "hecha",
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: MARTES,
+      estado: "hecha",
     });
     expect(diasSemana(estado, LUNES, MARTES)).toEqual({
       hechas: 2,
@@ -590,7 +675,7 @@ describe("resumen", () => {
     });
   });
 
-  it("una sesión sin hacer sigue sin cumplir aunque otro día tenga extra", () => {
+  it("un día con actividades sin hacer no cuenta como deporte", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -598,18 +683,18 @@ describe("resumen", () => {
       actividadId: ID_GYM,
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: MARTES,
       actividadId: ID_CAMINAR,
     });
     expect(diasSemana(estado, LUNES, MARTES)).toEqual({
-      hechas: 1,
+      hechas: 0,
       total: 2,
     });
-    expect(fechasConDeporte(estado, LUNES, MARTES)).toEqual([MARTES]);
+    expect(fechasConDeporte(estado, LUNES, MARTES)).toEqual([]);
   });
 
-  it("un extra cuenta el día aunque la sesión del plan no esté hecha", () => {
+  it("un día cuenta si alguna de sus actividades está hecha", () => {
     let estado = estadoSemilla();
     estado = hacer(estado, {
       tipo: "colocarSesion",
@@ -617,13 +702,23 @@ describe("resumen", () => {
       actividadId: ID_GYM,
     });
     estado = hacer(estado, {
-      tipo: "anadirExtra",
+      tipo: "colocarSesion",
       fecha: LUNES,
       actividadId: ID_CAMINAR,
+    });
+    estado = hacer(estado, {
+      tipo: "marcarSesion",
+      fecha: LUNES,
+      indice: 1,
+      estado: "hecha",
     });
     expect(diasSemana(estado, LUNES, LUNES)).toEqual({
       hechas: 1,
       total: 1,
+    });
+    expect(cumplimientoSemana(estado, LUNES)).toEqual({
+      hechas: 1,
+      planificadas: 2,
     });
   });
 
